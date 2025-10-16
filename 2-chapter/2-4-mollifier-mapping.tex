@@ -1,0 +1,61 @@
+
+In this section, we follow~\cite{hiptmair2018} and examine a transformation that maps the nominal domain ${D}$ to the parameterized domain $\Dy$ by employing a mollifier $\chi(\x)$.
+The main idea is to propagate the rescaling of the boundary radially to the interior of the domain using a mollifier $\chi(\x)$.
+The main advantage of this approach is its analytic tractability, as we can compute derivatives explicitly, allowing for sharper asymptotic results.
+
+\begin{assumption}\label{ass:mollifier_t}
+The mollifier $\chi(\x):{D} \to [0, 1]$, $\chi \in C^{0, 1} (\overline{{D}})$, has the following properties:
+\begin{enumerate}
+    \item[(i)] For $|\x| < r_0(\theta(\x))$, it is monotonically increasing as a function of $|\x|$ for fixed $\theta(\x)$.
+    \item[(ii)] For $|\x| > r_0(\theta(\x))$, it is monotonically decreasing as a function of $|\x|$ for fixed $\theta(\x)$.
+    \item[(iii)] It is zero in a neighborhood of the origin in a neighborhood of non-parameterized boundaries and one on the parameterized boundary.
+\end{enumerate}
+\end{assumption}
+
+\begin{definition}[Mollifier transformation]
+    With a mollifier satisfying Assumption~\ref{ass:mollifier_t}, we define a mollifer transformation, mapping the nominal domain ${D}$ to the parameterized domain ${D}(\y)$, for every $\y\in Y$, by:
+    \begin{equation}
+        \Phi(\y;\x) = \x + \chi\left(\x\right)\left[ r(\y;\theta(\x)) - r_0(\theta(\x)) \right]\frac{\x}{|\x|},\quad  \x \in D. \label{eq:mollifiertransf}
+    \end{equation}
+\end{definition}
+
+From Assumption~\ref{ass:mollifier_t}, we conclude that $\Phi(\y;\cdot)$ is bijective.
+Also, it fits the framework~\eqref{eq:phidefpois} with, for $j\geq 1$,
+\begin{equation}
+    \Phi_j(\x)\coloneqq\chi\left(\x\right)\psi_j(\theta(\x))\frac{\x}{|\x|},\quad \x\in D.\label{eq:frameworkmapping}
+\end{equation}
+The exact definition of the mollifier is domain-specific, and we will discuss the mollifier mapping for both the interior domain and the truncated exterior domain in the upcoming sections.
+
+\subsubsection{Interior domain}\label{subsubsec:interior-domain}
+On the interior domain used for the Poisson equation, we define an affine mollifier by:
+\begin{definition}[Interior affine mollifier]\label{def:interior_mollifier}
+We define the affine mollifier on the interior domain by
+\begin{equation}
+    \chi(\x) = \begin{cases}\frac{|\x| - r_{mol}}{r_0(\theta(\x))- r_{mol}},&\text{for }|\x|\geq r_{mol},\\
+    0, & \text{otherwise},
+    \end{cases}
+    \label{eq:interior_mollifier}
+\end{equation}
+where $r_{mol} < (1-\gamma )r_0^-$ with $r_0^-= \min_{\theta\in [0, 2\pi)} \left(r_0(\theta) \right)$ equal to the minimal nominal radius and $\gamma$ as defined in Assumption~\ref{ass:phiregularity}.
+\end{definition}
+This choice of $r_{mol}$ ensures the fulfillment of Assumption~\ref{ass:mollifier_t}.
+The cutoff value $(1-\gamma )r_0^-$ has been chosen such that all mappable shape deformations can be accommodated.
+However, for large values of $\gamma$, any oscillatory behavior of the basis functions $\psi_j$ gets amplified by a factor $\frac{1}{|\x|}$ near the origin.
+This, in turn, increases the required resolution of the used mesh around the origin.
+Hence, we have to choose the regularity of our basis functions such that we can choose $\gamma$ large enough not to impact the computational load too much.
+
+\subsubsection{Truncated exterior domain}\label{subsubsec:truncated-exterior-domain}
+On the external domain, the mollifier is defined similarly as
+\begin{definition}[Exterior affine mollifier]\label{def:exterior_mollifier}
+We define the affine mollifier on the exterior domain by
+\begin{equation}
+    \chi(\x) = \begin{cases}\frac{|\x| - r_{mol}}{r_0(\theta(\x))- r_{mol}},&\text{for }|\x|\leq r_{mol},\\
+    0, & \text{otherwise},
+    \end{cases}
+    \label{eq:exterior_mollifier}
+\end{equation}
+where $r_{mol} \in ( r_0^++\gamma r_0^{-}, r_{out})$ with $r_0^-= \min_{\theta\in [0, 2\pi)} \left(r_0(\theta) \right)$ equal to the minimal nominal radius, $r_0^+= \max_{\theta\in [0, 2\pi)} \left(r_0(\theta) \right)$ equal to the maximal nominal radius, and $\gamma$ as defined in Assumption~\ref{ass:phiregularity}.
+\end{definition}
+Again, we note that the upper and lower bound on $r_{mol}$ ensure Assumption~\ref{ass:mollifier_t}.
+Moreover, for this interval to be nonempty, we have the lower bound $r_{out} > r_0^++\gamma r_0^{-}$.
+As we are dealing with an external domain, we are not limited by the oscillation concentration issues at the center of the internal domain.

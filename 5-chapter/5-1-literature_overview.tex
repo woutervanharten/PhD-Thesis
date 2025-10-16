@@ -1,0 +1,29 @@
+For a given linear system, i.e.,\ a fixed parameter value, various methods for its efficient solution exist.
+While direct methods are practical for systems of moderate size, larger systems require iterative solvers, such as Krylov methods~\cite{ipsen1998}.
+Their performance is highly dependent on the system's condition number, which can be reduced by using a preconditioner~\cite{wathen2015}.
+Performing preconditioning requires some computational resources, which are compensated by the realized reduction in Krylov iterations.
+Choosing the right preconditioner is application-specific and extensively studied~\cite{pearson2020,wathen2015}.
+
+When solving multiple linear systems, we would like to reduce the computational load.
+A well-studied option is to recycle either the Krylov subspaces~\cite{parks2006} or the preconditioner(s).
+For the Helmholtz application we consider, Krylov subspace recycling has been studied in~\cite{jin2009}.
+On the other hand, one could try to parameterize the preconditioner~\cite{contreras2018}.
+In this work, we focus our attention on preconditioner recycling.
+
+For this, we could take inspiration from~\cite{graham2021} and apply a single preconditioner to multiple systems.
+Initial exploration of this approach has been performed for stochastic spectral finite element methods applied to the diffusion equation~\cite{ghanem1996,keese2004,pellissetti2000} and the Helmholtz equation~\cite{wang2019,jin2009}.
+Preconditioning was performed through block-diagonal preconditioning, where a single mean-based preconditioner is used in a block-diagonal setting.
+These ideas were then applied to the much more challenging Navier-Stokes equations, where the stochastic Galerkin discretization of said equations was investigated numerically~\cite{powell2012}.
+We can make use of mean-based preconditioning outside the stochastic Galerkin framework as well, which was initially explored for the diffusion equation~\cite{eiermann2007,ernst2009}.
+For a comprehensive overview of the history of mean-based preconditioning, we refer the reader to an excellent review by Owen Pembery~\cite[Section~4.7]{pembery2020}.
+While mean-based preconditioning is computationally efficient, it might break down if the effect of parameter changes on the matrix is large.
+
+Improvements could be gained by considering multiple preconditioners throughout the parameter space.
+This has been investigated in~\cite{venkovic2024} for the diffusion equation with short correlation lengths, focussing on Voronoi quantizers placed without prior knowledge of the parameter locations.
+For the Helmholtz equation, a greedy approach for known parameter locations was presented in~\cite[Section~4.6]{pembery2020}.
+However, this requires prior knowledge about the maximum number of iterations and the distance function on the parameter space, and the algorithm might struggle if the problem has hidden parameter anisotropy or a high dimension.
+
+Our approach exploits the structure and a-priori knowledge of parameter locations, overcoming the limitations of the approach in~\cite[Section~4.6]{pembery2020}, which assumes uniform spacing of the parameter locations.
+The main novelty of this chapter is to train a surrogate model to predict the number of Krylov iterations needed and use it to determine preconditioner placement while incorporating dimension anisotropy.
+Training a surrogate allows us to incorporate problem-specific structures to select preconditioner locations optimally.
+Since computing the best locations to place the preconditioners is known to be NP-hard~\cite{sherali1988}, we use a location-allocation heuristic~\cite{brimberg2008}.

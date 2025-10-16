@@ -1,0 +1,153 @@
+To select the preconditioner locations in $Y$, we rely on a problem-specific approximation of the expected number of iterations, which we denote by $\tilde{m}$:
+\begin{equation*}
+    \tilde{m}(\y,\hat{\y}) \coloneqq \text{Estimated $\#$ Krylov iterations to solve }\mathbb{P}(\yh)\mathbb{A}(\y)\u=\mathbb{P}(\yh),
+\end{equation*}
+for $\y,\yh \in Y$, and by
+\begin{equation}
+    N_{ratio} = \frac{\tau_{pc}}{\tau_{Krylov}}\label{eq:Nratio}
+\end{equation}
+the ratio between the computation time of a preconditioner $\tau_{pc}$ and $\tau_{Krylov}$, the time to perform a single Krylov iteration.
+Moreover, we assume that the number of Krylov iterations required is invariant under translations:
+\begin{assumption}\label{ass:shift_invariant}
+We have $\tilde{m}(\y,\hat{\y}) = \tilde{m}(\y+\tilde{\y},\hat{\y}+\tilde{\y})$, for all $\y, \tilde{\y},$ and $\hat{\y}$ in $Y$.
+\end{assumption}
+This way, it is sufficient to define $m(\cdot)$ such that, for $\y,\yh\in Y$,
+\begin{equation*}
+    m(\y - \hat{\y}) \coloneqq  \tilde{m}(\y,\hat{\y}).
+\end{equation*}
+Although Assumption~\ref{ass:shift_invariant} is not always satisfied, it provides an effective framework for building a good surrogate for the number of iterations that is efficient to evaluate.
+When not fulfilled, we can think of our surrogate as incorporating a modeling approximation.
+
+We must first determine $N_{pc}$, the number of preconditioners.
+A small $N_{pc}$ wastes computational potential, while a larger $N_{pc}$ increases the cost of the preconditioning strategy.
+For now, we fix $N_{pc}$ and discuss its choice in Section~\ref{subsec:determining-Npc}.
+For the time being, we assume we have $m(\cdot)$ and discuss its construction in Section~\ref{sec:estimating-m-for-gmres}.
+
+To place the preconditioners efficiently, we need to solve
+\begin{equation}
+    \argmin_{\{\hat{\y}_k\in Y\}_{k=1}^{N_{pc}}} \sum_{\y_j} m\left(\y_j-\hat{\y}\left(\y_j\big|\{\hat{\y}_k\}_{k=1}^{N_{pc}}\right)\right),\label{eq:simplified_optim_problem}
+\end{equation}
+where
+\begin{equation*}
+    \hat{\y}\left(\y_j\big|\{\hat{\y}_k\}_{k=1}^{N_{pc}}\right)=\argmin_{\yh\in \{\hat{\y}_k\}_{k=1}^{N_{pc}}} m(\yi-\yh)
+\end{equation*}
+maps each parameter location $\yi$ to its assigned preconditioner location $\yh_k$.
+That is, we want to find the locations that minimize the total computational load.
+Equation~\eqref{eq:simplified_optim_problem} is equivalent to the NP-hard \emph{uncapacitated facility location problem}~\cite{brimberg2008,sherali1988}.
+Therefore, we resort to iterative algorithms for computational feasibility despite the possible occurrence of local minima~\cite{church2022}.
+
+We now consider the well-known \emph{location-allocation} algorithm~\cite{cooper1963,lara2018}, which iterates through a location and an allocation step.
+First, the preconditioners are initialized (Section~\ref{subsec:initialization}).
+Then, the values in $W$ are clustered iteratively, where each step assigns parameters to the preconditioner with the lowest expected number of Krylov iterations.
+The preconditioner location is then optimized to minimize Krylov iterations given the assigned parameter values, and this process continues until convergence or diminishing returns (Section~\ref{subsec:location}).
+
+\subsection{Initialization}\label{subsec:initialization}
+As previously discussed, the optimization problem exhibits many local minima.
+Therefore, finding a good initialization approach is key, and different initialization techniques have been considered.
+For one, we could initialize randomly.
+However, this tends to initialize far away from any (local) minimum and thus requires many location-allocation steps.
+Additionally, we could initialize with parameter space-filling points using well-known quasi-Monte Carlo (QMC) sequences.
+An advantage of QMC points is that we can incorporate any anisotropy into the initialization points~\cite{howell2009}.
+However, this tends to initialize far away from local minima if the points in $W$ are not statistically uniformly distributed, which we cannot guarantee a-priori.
+Furthermore, we could use global optimization techniques to find a good starting point for our local search.
+For example, a Bayesian optimization approach can provide great initialization points.
+Still, this method suffers significantly from the curse of dimensionality because the effective dimension of the global problem is $N*N_{pc}$.
+
+Finally, a greedy initialization method has been considered.
+This means iteratively placing preconditioners at the parameter location with the highest expected number of Krylov iterations.
+This greedy approach is repeated until the assigned number of preconditioners has been placed.
+Contrary to space-filling and random initialization, greedy initialization has a tendency to initialize near or at local minima of the minimization problem.
+Especially for large values of $N_{pc}$ relative to the size of $W$, the greedy initialization generally initializes at local minima.
+Therefore, we proceed with greedy initialization because it is comparatively inexpensive to compute and provides us with good results.
+
+\subsection{Location-allocation}\label{subsec:location}
+After initialization, we iterate through location and allocation steps.
+In each location step, we need to find the center of each cell in the partition $W_k$ associated with the preconditioner at $\y_k$.
+This boils down to computing for every element of the partition:
+\begin{equation}
+    \argmin_{\ys\in Y} \sum_{\y_j \in W_k} m(\y_j -  \ys). \label{eq:location_step_problem}
+\end{equation}
+This minimization problem, also known as the \emph{Weber problem} or the \emph{generalized Fermat problem}, is very challenging to solve~\cite{brimberg2008,kalczynski2024}.
+
+The most well-known method to solve the location problem in the case of Euclidean distances is by employing a variant of Weiszfeld's algorithm~\cite{cooper1981,weiszfeld1937}.
+Versions of Weiszfeld's algorithm have been developed for more general notions of Fermat's problem~\cite{eckhardt1980,drezner2009}, using an analytic expansion of the (sub)gradient to obtain a contraction mapping that converges to the minimum.
+Analysis of the convergence, including the formulation of sufficiency conditions on the distance function, is performed in~\cite{drezner2009}.
+In case the provided estimate $m(\cdot)$ can be formulated in the structure of the generalization, the (modified) Weiszfeld algorithm is expected to perform very well.
+However, we cannot guarantee that the (generalized) Weiszfeld algorithm is applicable, and hence, we propose a more general approach.
+
+On the other hand, for more general distance functions, the most well-known choice is to assign the preconditioner to the average location of the enclosed collocation points, resulting in the k-means clustering algorithm.
+Although this clustering algorithm is put forward in~\cite{graham2021} to solve a very similar problem, we note that the average minimizes the sum of the \emph{squared} distances to the preconditioner.
+Therefore, this does not minimize the expected number of GMRES iterations, even if $m(\cdot)$ is proportional to a (weighted) Euclidean distance.
+
+We thus resort to an iterative approach to solve~\eqref{eq:location_step_problem} by employing a general-purpose optimizer readily available in many programming languages.
+In the numerical experiments in Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, the L-BFGS-B algorithm was used.
+For large values of $N_{pc}$, the location step is costly.
+However, greedy initialization tends to initialize near local minima in these cases.
+
+In the allocation step, each $\y_i \in W$ is assigned to the preconditioner minimizing Krylov iterations, and we obtain a new partition $W_k$ of $W$.
+This defines a \emph{generalized Voronoi diagram}~\cite{chew1985}.
+
+\begin{remark}\label{rem:pcnotatcol}
+Differently from previous work~\cite{graham2021}, we do not assume $\{\hat{\y}_k\}_{k=1}^{N_{pc}} \subset W$.
+Restricting the preconditioners to the parameter locations may be suboptimal.
+Moreover, allowing the preconditioners at any point in the parameter space enables us to use tools from continuous optimization.
+\end{remark}
+
+\subsection{Determining the number of preconditioners}\label{subsec:determining-Npc}
+Determining $N_{pc}$ resembles a clustering problem which is expensive to solve exactly.
+Instead, we re-use the greedy initialization: at each step, we estimate the total computation time
+\begin{align*}
+    \tau_{est}(N_{pc})=\sum_{k=1}^{N_{pc}}\left(N_{ratio}+  \sum_{\y_j\in W_k} m(\y_j - \y_k)\right).
+\end{align*}
+If $\tau_{est}(N_{pc}) > \tau_{est}(N_{pc} - 1) > \tau_{est}(N_{pc} - 2)$, we discard the last two placed preconditioners and set $N_{pc} = N_{pc} - 2$.
+Although this procedure has no rigorous guarantee to find the optimal value for $N_{pc}$, it yields satisfactory results at a low cost.
+We note that other alternatives are available~\cite{thorndike1953,rousseeuw1987,tibshirani2001}, but these require multiple expensive clustering runs.
+
+We summarize the preconditioner placement in Algorithm~\ref{alg:location-allocation}.
+
+
+\begin{algorithm}[t!]
+    \caption{Preconditioner placement}\label{alg:location-allocation}
+    \phantom{}\textbf{Input} $W$, $N_{ratio}$, $pc_{fixed}=\{\}$\\
+    \phantom{}\Comment{Parameter locations, Cost ratio, Precomputed preconditioner locations}\\
+    \phantom{}\textbf{Output} $pc_{loc}$
+    \Comment{Computed preconditioner locations}
+    \begin{algorithmic}[1]
+        \State $N_{pc} \gets |pc_{fixed}| - 1$
+        \Comment{The number of preconditioners}
+        \State $pc_{loc} \gets pc_{fixed}$
+        \Comment{Preconditioner locations}
+        \State $cost \gets \left\{\infty, N_{ratio} * N_{pc}+ \sum_{\y_i \in W}m(\y_i, \yh(\yi|pc_{fixed}))\right\}$
+        \item[]\Comment{Expected costs of the preconditioning strategy}
+%        \State $cost_{new}\gets $
+%        \Comment{Expected new costs}
+        \item[]
+        \While{$cost$ not increasing twice in a row}
+            \item[]\Comment{\textbf{Initialization} and compute $N_{pc}$}
+            \State $N_{pc} \gets N_{pc} + 1$
+%            \State $pc_{new} \gets $
+            \State $pc_{loc} \gets pc_{loc} \cup \{\argmax_{\y_i\in W} m(\y_i, \yh(\yi|pc_{loc}) )\}$
+            \State $cost\gets cost \cup \{N_{ratio} * N_{pc}+ \sum_{\y_i \in W}m(\y_i, \yh(\yi|pc_{loc}))\}$
+        \EndWhile
+        \State $N_{pc} \gets N_{pc} - 2, \,\,\,pc_{loc} \gets pc_{loc}[\coloneq2]$
+        \item[]\Comment{Discard last two preconditioners}
+        \item[]
+        \While{Preconditioner has changed \item[]\qquad\qquad\AND compute time $<$ strategy gain}
+            \item[]\Comment{continue \textbf{location-allocation} as long as there is change and it is worthy}
+            \State $W_k \gets partition(W, pc_{loc}, m)$
+            \Comment{Compute the partitions $W_k$}
+            \For{$\hat{\y}_k \in pc_{loc}$}
+                \Comment{Location step}
+                \State $\hat{\y}_k \gets \argmin_{{\ys}\in Y} \sum_{\y_i \in W_k[\hat{\y}_k]}m(\y_i-\ys)$
+            \EndFor
+        \EndWhile\\
+        \Return $pc_{loc}$
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{remark}[Concentration of measure effect for isotropic parameter space]\label{rem:high-dimensional-parameter-space}
+As the parameter dimension grows, the distance to the origin, and hence the number of Krylov iterations, concentrates~\cite{aggarwal1973}.
+Thus, in a high-dimensional isotropic parameter space, the expected number of Krylov iterations with a mean-based preconditioner is nearly uniform.
+If this number is below the cost ratio, mean-based preconditioning is optimal; otherwise, separate preconditioners per parameter value are preferred.
+Consequently, in this case, the optimal value of $N_{pc}$ is either one if $m\left(\mathbb{E}[\|X\|_{2}]\right) < N_{ratio}$, or the cardinality of $W$.
+\end{remark}

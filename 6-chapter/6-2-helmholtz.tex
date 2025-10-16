@@ -1,0 +1,191 @@
+We study the Truncated Exterior Dirichlet Problem (TEDP) of the Helmholtz equation in two dimensions, as introduced in Chapter~\ref{ch:introduction}.
+For the reader's convenience, we reiterate the most relevant aspects here.
+
+Denoting $D=\left\{ \x\in\mathbb{R}^2\,:\,r_{in}(\theta(\x)) < |\x| < r_{out} \right\}$ with $\theta(\x)$ the argument of the vector $\x$, we consider the variational problem: for $\y\in Y\coloneqq [-1, 1]^N$, find $u(\y) \in H^{1}_{\Gamma_{in}}(D)$ such that
+\begin{align}
+    \int_D A(\y) &\nabla u(\y) \cdot \nabla v \dx - k^2\int_{D}n(\y) u(\y) v \dx - i k\int_{\Gamma_{out}} u(\y) v\dx \nonumber \\ &=\int_{\Gamma_{out}} \left( \frac{\partial}{\partial \hat{\bm{n}}} -ik\right)u_{in} v\dx, \qquad
+    \text{for all }v \in H^{1}_{\Gamma_{in}}(D)\label{eq:weakform},
+\end{align}
+where $u_{in}$ is the incoming wave, $n(\y; \cdot)$ is a heterogeneous, real-valued refractive index of the medium, and $A(\y; \cdot)$ a heterogeneous coefficient, taking values in $\mathbb{R}^{2\times 2}$.
+Moreover, we require both $n(\y,\cdot)$ and $A(\y,\cdot)$ to be $C^1$ in $\y$ to go beyond affine expansions in $\y$.
+The central scatterer is impenetrable and corresponds to the region $\left\{ \x \in \mathbb{R}^2\,\|\, \|\x\| < r_{in}(\theta) \right\}$.
+
+
+We consider a discretization of~\eqref{eq:weakform} with the finite element method, leading to linear systems of the form
+\begin{equation}
+    \mathbb{A}(\y)\u(\y)=b\label{eq:linear_system},
+\end{equation}
+where we assume that problem~\eqref{eq:weakform} is nontrapping.
+To make this explicit, we denote
+\begin{equation*}
+    \left\| \cdot \right\|_{H_{k}^1(D)}^2\coloneqq \left\| \nabla \cdot \right\|_{L^2(D)}^2+k^2\left\| \cdot\right\|_{L^2(D)}^2
+\end{equation*}
+and formulate the nontrapping assumption:
+\begin{assumption}[Nontrapping]\label{ass:nontrapping}
+The quantities $D$, $A$, and $n$ are such that, given $f\in L^2(D)$, the solution $u(\y)$ to~\eqref{eq:weakform} exists, is unique, and satisfies
+\begin{align*}
+    \|u(\y)\|_{H_{k}^1(D)}\leq C_{\text{bound}} \|f\|_{L^2(D)},
+\end{align*}
+where $C_{bound}$ is independent of $k$ and $\y\in Y$.
+\end{assumption}
+
+For high $k$, solving~\eqref{eq:linear_system} becomes challenging with GMRES\@.
+To solve it many times for different parameter values, we thus follow Chapter~\ref{ch:distributed-preconditioning} to assign the linear systems to a limited number of preconditioners using a surrogate of the number of GMRES iterations.
+To this aim, we need a good approximation for the prior mean, which we will construct in the next section, and a measure of dimension importance in the parameter space, which we will discuss in Section~\ref{subsec:importance-weights}.
+
+\subsection{The prior mean}\label{subsec:prior-mean}
+Choosing a prior mean is a delicate task.
+We could use the estimates in~\cite{graham2021} and set
+\begin{equation}
+    \mu_0(\y,C)\coloneqq C_1 \|A(\y; \cdot) - A(\hat{\y};\cdot)\|_{L^2_{op}(D)}+C_2 \|n(\y; \cdot) - n(\hat{\y};\cdot)\|_{L^2(D)}\label{eq:GP-mean-def},
+\end{equation}
+where $C_1$ and $C_2$ are hyperparameters and $\|\cdot\|_{L^2_{op}(D)}$ is the $L^2$-norm of the pointwise spectral matrix 2-norm.
+However, computing this requires integration over $D$, which is costly.
+
+To evaluate~\eqref{eq:GP-mean-def} efficiently, we exploit the differentiability of $A$ and $n$:
+\begin{equation*}
+    n(\y, \cdot) = n(\yh, \cdot) + \nabla_{\y} n(\bm{\eta}^1, \cdot) \cdot \left( \y - \yh \right),
+\end{equation*}
+for some $\bm{\eta}^1\in Y$ between $\y$ and $\yh$.
+Expanding the second term in~\eqref{eq:GP-mean-def}, we obtain:
+\begin{align*}
+    \|n(\y; \cdot) - n(\hat{\y};\cdot)\|_{L^2(D)}&= \| \nabla_{\y} n(\bm{\eta}^1, \cdot) \cdot \left( \y - \yh \right) \|_{L^2(D)}\\
+    &= \left( \left(\y - \yh \right)^\top\mathbb{B}(\bm{\eta}^1)\left(\y - \yh \right) \right)^{\frac{1}{2}}\\
+    &= \left\| \y-\yh \right\|_{\mathbb{B}(\bm{\eta}^1)},
+\end{align*}
+where $\left\| \cdot \right\|_{\mathbb{B}(\bm{\eta}^1)}$ denotes a \emph{weighted $\ell^2$-norm} with a positive definite wei\-ght matrix $\mathbb{B}(\bm{\eta}^1)$, parameterized by $\bm{\eta}^1$.
+In this case, $\mathbb{B}(\bm{\eta}^1)$ is a symmetric matrix with entries
+\begin{equation}
+    \mathbb{B}_{ij}(\bm{\eta}^1) = \int_D \left|  \partial^{e_i} n(\bm{\eta}^1, \cdot)\partial^{e_j} n(\bm{\eta}^1, \cdot)\right|  \dx \label{eq:Bmatdef}.
+\end{equation}
+Similarly, we obtain $\|A(\y; \cdot) - A(\hat{\y};\cdot)\|_{L^2_{op}(D)} = \left\| \y-\yh \right\|_{\mathbb{D}(\bm{\eta}^2)},$ where $\mathbb{D}(\bm{\eta}^2)$ is a symmetric matrix with entries
+\begin{equation}
+    \mathbb{D}_{ij}(\bm{\eta}^2) = \int_D\left|  \partial^{e_i} A(\bm{\eta}^2, \cdot)\partial^{e_j} A(\bm{\eta}{^2}, \cdot)\right|_{2,2}  \dx \label{eq:Dmatdef},
+\end{equation}
+where $\bm{\eta}^2\in Y$ lies between $\y$ and $\yh$ and $\left\| \cdot \right\|_{2,2}$ is the spectral matrix norm.
+
+The matrices $\mathbb{B}(\cdot)$ and $\mathbb{D}(\cdot)$ can often be approximated by constant matrices by using the structure of the parameter dependence.
+We will discuss this for an affine expansion in Section~\ref{subsec:disjoint-density} and a parameterized domain in Section~\ref{subsec:parameterized-domain}.
+However, the results presented in both sections are more widely applicable than these two examples, which merely show the process of applying these methods.
+We also note that because of the hyperparameters $C_1$ and $C_2$, it is sufficient to estimate the norms up to an (unknown) constant.
+
+We can then combine~\eqref{eq:GP-mean-def} with $\mathbb{B}$ and $\mathbb{D}$ to obtain:
+\begin{equation}
+    \mu_0(\y|C)= C_1 \left\| \y-\yh \right\|_{\mathbb{D}}+C_2  \left\| \y-\yh \right\|_{\mathbb{B}}\label{eq:GP-mean-def_y},
+\end{equation}
+for the prior mean of the gray-box Gaussian process~\eqref{eq:alpha_GP_def}.
+
+\subsection{Anisotropy weights}\label{subsec:importance-weights}
+Next to the prior mean, we prescribe values for the anisotropy weights $\gamma_i$ proportional to the importance of dimensions in the parameter space.
+These weights allow us to further exploit the structure in the parameter domain such that we can scale better to higher parameter dimensions.
+Therefore, we define them in terms of the matrices $\mathbb{B}$ and $\mathbb{D}$:
+\begin{equation*}
+    \gamma_i \coloneqq C_1\sqrt{\mathbb{D}_{ii}}+C_2\sqrt{\mathbb{B}_{ii}}, \qquad i = 1,\ldots, N,
+\end{equation*}
+where $C_1$ and $C_2$ are the hyperparameters from equation~\eqref{eq:GP-mean-def}.
+Now, the correlation length $l_i$ of the Matérn kernel in dimension $i$ is given by:
+\begin{equation*}
+    l_i = \text{diam}(D) \frac{\max_j \gamma_j}{\gamma_i} \geq \text{diam}(D),
+\end{equation*}
+where $\text{diam}(D)$ is the diameter of the computational domain.
+
+In the next section, Section~\ref{subsec:disjoint-density}, we will consider an affine dependence on the parameter $\y$ for $n$, and in Section~\ref{subsec:parameterized-domain}, we consider a parameterized domain test case, where the shape of the central impenetrable scatterer depends on the parameter $\y$.
+
+\subsection{Affine expansion for the refractive index}\label{subsec:disjoint-density}
+We investigate affine dependence on the parameter $\y$ for $n$, and we consider a constant $A=I_2$.
+The affine expansion of the refractive index $n$ is given by
+\begin{equation}
+    n(\y,\x) \coloneqq n_{0}(\x) + \sum_{i=1}^{N} \psi_i(\x) y_i, \label{eq:affinendef}
+\end{equation}
+with $n(\y, \x)$ uniformly positive with respect to $\x$ and $\y$, and such that the resulting problem is non-trapping for all $\y\in Y$.
+
+To apply the methods we developed in Chapter~\ref{ch:distributed-preconditioning}, we need to estimate the matrices $\mathbb{D}$ and $\mathbb{B}$.
+Since $A$ is independent of $\y$, we set $\mathbb{D}_{ij}=0$ for $i,j=1,\ldots, N$.
+To estimate $\mathbb{B}$, we use equation~\eqref{eq:Bmatdef} and compute
+\begin{equation}
+    \mathbb{B}_{ij} =\int_D \psi_i(\x)\psi_j(\x) \dx,\qquad i,j=1,\ldots, N.\label{eq:affineBdef}
+\end{equation}
+In the numerical experiments, we will consider the expansion
+\begin{equation}
+    n(\y,\x) \coloneqq 1 + \sum_{i=1}^{N} \mathbbm{1}_{\Omega_i}(\x)\chi(\x)\eta_i \frac{y_i-1}{2}, \label{eq:ndef}
+\end{equation}
+for a partition $\{\Omega_i\}_{i=1}^N$ of $D$, weights $\eta_i\in\mathbb{R}$ with $\y\in Y$, and $\chi$ a mollifier satisfying the assumption below:
+\begin{assumption}\label{ass:mollifier}
+The mollifier $\chi(\x)$ is continuous on $D$, $\chi(\x)=1$ on $\Gamma_{in}$ and $\chi(\x)=0$ in an open neighborhood of $\Gamma_{out}$.
+\end{assumption}
+
+By employing a mollifier, we ensure that $n(\cdot, \x)\equiv 1$ and $\nabla_{\x} n(\y,\x)=0$ on the outer boundary $\Gamma_{out}$ such that we can apply the Robin approximation on $\Gamma_{out}$
+Moreover, we choose the partition $\{\Omega_i\}_{i=1}^N$ of $D$ as
+\begin{equation*}
+    \Omega_i = \left\{\x \in D \,,\, \frac{2\pi i}{N} \leq \theta(\x) < \frac{2\pi (i+1)}{N} \right\},
+\end{equation*}
+such that, together with the term $(y_i-1)$ in~\eqref{eq:ndef}, the non-trapping Assumption~\ref{ass:nontrapping} is fulfilled~\cite[Condition~2.6]{graham2019}.
+Moreover, $\mathbb{B}$ is a diagonal matrix with entries $\mathbb{B}_{ii}=C_\chi\eta_i^2$ where $C_\chi \in \mathbb{R}$ is a constant depending on the mollifier that will be absorbed into the hyperparameters.
+This reduces the correlation lengths to
+\begin{equation*}
+    l_i = \diam(D) \frac{\max_j \eta_j}{\eta_i}, \qquad i=1,\ldots, N.
+\end{equation*}
+For a generic $n$, the matrix $\mathbb{B}$ from~\eqref{eq:affineBdef} can be computed similarly to the techniques we present in the next section.
+
+\subsection{Parameterized domain}\label{subsec:parameterized-domain}
+Our second test case considers scattering against a star-shaped object $D_{scat}(\y)$, parameterized by $\y\in Y = \left[ -1,1 \right]^N$ as introduced in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}.
+For the reader's convenience, we remind the reader that $D$ corresponds to the reference configuration on which we have the variational problem: for every $\y\in Y$, find $u(\y) \in H^1_{0, \Gamma_{scat}}(D)$ such that
+\begin{align*}
+    \int_{D}& A(\y,\cdot) \nabla u(\y) \cdot \nabla v \dx - k^2\int_{D} n(\y,\cdot) u(\y) v \dx - i k\int_{\Gamma_{out}}  u(\y) v\dx \\
+    &= \int_{\Gamma_{out}} \left( \frac{\partial}{\partial \hat{\bm{n}}} -ik\right)u_{in} v\dx +  \int_{D} f v\dx, \nonumber
+    \text{\qquad for all }v \in H^1_{0, \Gamma_{scat}}(D),
+\end{align*}
+where the coefficients are
+\begin{equation*}
+    A(\y; \x) =  \D\Phi^{-1}(\y; \x) \D\Phi^{-\top}(\y; \x)=\det(\D\Phi(\y; \x)),
+\end{equation*}
+and
+\begin{equation*}
+    n(\y; \x) = \det(\D\Phi(\y; \x),
+\end{equation*}
+with $\Phi$ the mapping to the physical domain and $u$ is the pulled back solution.
+
+Similar to the affine expansion in Section~\ref{subsec:disjoint-density}, we still have to obtain the constant matrices $\mathbb{B}$ and $\mathbb{D}$ by approximating $\eqref{eq:Bmatdef}$ and $\eqref{eq:Dmatdef}$.
+To do this, we will use upper bounds in~\cite{harbrecht2016} on the first derivative of $A$ and $n$ with respect to $\y$.
+
+We treat the $\mathbb{B}$ matrix first, by employing~\cite[Lemma~4]{harbrecht2016} to obtain:
+\begin{equation*}
+    \left|  \partial^{e_i}n(\bm{\eta}^1, \cdot)\right| \leq 2 (1+\sigma_{max})^2 \left\| \Phi_i \right\|_{W^{1,\infty}(D)}, \qquad i=1,\ldots, N,
+\end{equation*}
+for all $\bm{\eta}^1$, where $\sigma_{\max}$ is the upper bound from the Courant-Fisher Theorem, and $\Phi_i$ are the partial transformations from equation~\eqref{eq:phidefpois}.
+Hence, we bound:
+\begin{align*}
+    \mathbb{B}_{ij}(\bm{\eta}^1) &= \int_D \left| \partial^{e_i} n(\bm{\eta}^1, \cdot)\partial^{e_j} n(\bm{\eta}^1, \cdot)   \right| \dx\\
+    & \leq C_{\mathbb{B}} \left\| \Phi_i \right\|_{W^{1,\infty}(D)}  \left\| \Phi_j \right\|_{W^{1,\infty}(D)}\\
+    & \eqqcolon C_{\mathbb{B}} \mathbb{B}_{ij},
+\end{align*}
+where the constant $C_\mathbb{B}=|D|4 (1+\sigma_{\max})^4$ will be absorbed into the hyperparameter $C_2$.
+Similarly, we use ~\cite[Theorem~4]{harbrecht2016} to bound~\eqref{eq:Dmatdef}:
+\begin{equation*}
+    \mathbb{D}_{ij}(\bm{\eta}^2) \leq C_{\mathbb{D}} \mathbb{D}_{ij},
+\end{equation*}
+where
+\begin{equation*}
+    \mathbb{D}_{ij}=\mathbb{B}_{ij}=\left\|\Phi_i \right\|_{W^{1,\infty}(D)}  \left\| \Phi_j \right\|_{W^{1,\infty}(D)},
+\end{equation*}
+and
+\begin{equation*}
+    C_\mathbb{D}=\frac{16(1+\sigma_{\max})^2 }{\sigma_{\min}^2} \frac{4 (1 + c_\gamma)^2}{\sigma_{\min}^4\ln\left( 2 \right)^2}
+\end{equation*}
+is a constant which will be absorbed into the hyperparameter $C_1$.
+Moreover, $c_\gamma=\sum_{j=1}^N \left\| \Phi_j \right\|_{W^{1,\infty}(D)}$.
+In the numerical experiments, we will consider the Fourier expansion~\eqref{eq:fourierdef}, together with the mollifier mapping~\eqref{eq:exterior_mollifier}.
+For these, we compute:
+\begin{equation}
+    \left\| \Phi_j \right\|_{W^{1,\infty}(D)} \leq
+    \begin{cases}
+        2\vartheta\left\| \nabla \chi(\x) \right\|_{L^{\infty}} ,& \text{for }j=1,\\
+        \left( \frac{j+2}{2} \right)^{-\alpha}\vartheta\left( 1 + \left\| \nabla \chi(\x) \right\|_{L^{\infty}} + \left( \frac{j}{2} \right)  \right) , & \text{for $j$ even},\\
+        \left( \frac{j+1}{2} \right)^{-\alpha}\vartheta\left( 1 + \left\| \nabla \chi(\x) \right\|_{L^{\infty}} + \left( \frac{j-1}{2} \right) \right) ,& \text{else}.\\
+    \end{cases}\label{eq:shapew1infnormdef}
+\end{equation}
+Finally, we can use the estimates of $\mathbb{B}$ and $\mathbb{D}$ to compute the correlation lengths:
+\begin{equation*}
+    l_i = \diam(D) \frac{\max_j \left\| \Phi_j \right\|_{W^{1,\infty}(D)}}{\left\| \Phi_i \right\|_{W^{1,\infty}(D)}}, \qquad i=1,\ldots, N.
+\end{equation*}
+

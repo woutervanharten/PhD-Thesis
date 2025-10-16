@@ -1,0 +1,60 @@
+In veel aspecten van ons dagelijks leven komen we onzekerheid tegen.
+We zijn bijvoorbeeld geïnteresseerd in de weersvoorspelling voor volgend weekend, maar een dergelijke voorspelling is weinig waard als we de bijbehorende onzekerheid niet meenemen.
+Dit probleem is een van de centrale vraagstukken binnen het vakgebied van de \emph{onzekerheidskwantificatie}, waarin we antwoorden zoeken op de vraag:
+
+    \begin{center}
+        \textit{Hoe propageert onzekerheid door een wiskundig model?}
+    \end{center}
+
+In het geval van weersvoorspellingen kan deze onzekerheid bijvoorbeeld liggen in de huidige temperatuur, luchtdruk of luchtvochtigheid in de atmosfeer.
+Vervolgens willen we berekenen hoe deze onzekerheid zich propageert door een model, in dit geval een weersvoorspellingsmodel.
+
+Het propageren van onzekerheid door een wiskundig model kan veel rekentijd kosten, vooral in situaties waarin er veel, of zelfs oneindig veel, onzekere invoerparameters zijn, of wanneer de wiskundige modellen zelf veel tijd kosten om te evalueren.
+In dit proefschrift onderzoeken we numerieke methoden om onzekerheid te propageren door modellen die zowel hoogdimensionale input als hoge rekeneisen hebben.
+We werken dus aan efficiënte methoden om deze berekeningen uit te voeren, met als doel het benodigde rekenwerk te beperken.
+Het terugdringen van deze rekenkosten kan leiden tot energiebesparing en lagere kosten, wat op zijn beurt ruimte geeft voor nauwkeurigere modellen en daardoor nauwkeurigere voorspellingen.
+
+Het eerste hoofdstuk van dit proefschrift beschrijft methoden die men kan inzetten om de rekenlast van \emph{voorwaartse onzekerheidspropagatie} te beperken.
+Van deze methoden bespreken we er twee verder in dit proefschrift.
+In het tweede hoofdstuk introduceren we partiële differentiaalvergelijkingen op geparametriseerde domeinen, een voorbeeld dat we in latere hoofdstukken zullen gebruiken om de ontwikkelde methoden en algoritmen te testen.
+
+\subsection*{Taylorbenaderingen}\label{subsec:taylor-surrogates_nl}
+Een veelgebruikte aanpak is het formuleren van een \emph{surrogaatmodel} van het wiskundige model.
+Dit surrogaatmodel, of benaderingsmodel, moet het originele model adequaat benaderen maar aanzienlijk minder rekenwerk vergen.
+Het surrogaatmodel dat we bestuderen is de bekende Taylorbenadering, die de voorwaartse afbeelding uitdrukt in termen van afgeleiden van deze afbeelding, afgekapt zodanig dat de benadering voldoende accuraat is.
+Hoewel een Taylorbenadering snel te evalueren is, moet het eerst offline worden voorbewerkt.
+Daarom zijn we geïnteresseerd in de convergentie-eigenschappen van de Taylorbenadering: als de benadering sneller convergeert, hoeven we minder termen uit te rekenen en daalt de vereiste rekenlast.
+
+In hoofdstuk~\ref{ch:exploiting-locality-in-polynomial-approximations} bestuderen we de convergentiesnelheid van de Taylorbenadering voor de Poissonvergelijking, waarin de heterogene coëfficiënt op een niet-lineaire wijze afhangt van de parameters.
+Voor dit geval laat Stelling~\ref{thm:l2summability} zien dat de convergentiesnelheid afhangt van de decompositie van de geparametriseerde coëfficiënt.
+Concreet tonen we aan dat het gebruik van gelokaliseerde basisdecomposities de convergentie met een halve orde versnelt.
+Dat betekent dat, als men bijvoorbeeld waveletdecompositie gebruikt in plaats van een klassieke Fourierdecompositie met dezelfde asymptotische afname, de convergentie een halve orde sneller verloopt.
+
+Na de theoretische analyse in hoofdstuk~\ref{ch:exploiting-locality-in-polynomial-approximations}, passen we de theorie toe in hoofdstuk~\ref{ch:locality-in-parameterized-domains}.
+Als expliciet voorbeeld nemen we een Poissonvergelijking op een geparametriseerd domein, wat op natuurlijke wijze leidt tot een oneindigdimensionale parameterruimte.
+Door middel van een afbeeldingsmethode beelden we het geparametriseerde domein af op een referentiedomein, wat leidt tot een coëfficiënt die niet-lineair afhangt van de parameter.
+We beschouwen twee afbeeldingstechnieken: een expliciete radiale afbeelding en een harmonische afbeelding, die impliciet wordt gedefinieerd via een aanvullende partiële differentiaalvergelijking.
+
+In deze numerieke voorbeelden berekenen we Taylorbenaderingen voor de Poissonvergelijking op een geparametriseerd domein en zien we dat de theoretische verbeteringen uit Stelling~\ref{thm:l2summability} zich in de praktijk manifesteren.
+Bovendien onderzoeken we het effect van de verschillende afbeeldingsmethoden op de convergentiesnelheid en de bijbehorende constanten.
+Hieruit leren we dat, hoewel de expliciete radiale afbeelding gunstige analytische eigenschappen heeft die de convergentiebewijzen vereenvoudigen, de harmonische afbeelding betere prestaties levert door de grotere gladheid van de afbeelding.
+
+\subsection*{Gedistribueerd preconditioneren}\label{subsec:distributed-preconditioning_nl}
+Aan de andere kant vereisen veel technieken in onzekerheidskwantificatie het oplossen van veel lineaire stelsels, die vaak geparametriseerd zijn om de onzekerheden te modelleren.
+Deze lineaire stelsels ontstaan bijvoorbeeld bij het modelleren van fysische systemen beschreven door partiële differentiaalvergelijkingen, na discretisatie via bijvoorbeeld een rand- of eindige-elementenmethode.
+Wanneer deze stelsels groot of slecht geconditioneerd zijn, is directe oplossing onhaalbaar, en moeten iteratieve methoden worden ingezet.
+
+Om de convergentie van iteratieve methoden te verbeteren, gebruikt men doorgaans een preconditioneringsmatrix, dat, simpel gezegd, een goed ‘startpunt’ biedt voor de oplossing van het lineaire stelsel.
+Maar ook het berekenen van zo’n preconditioneringsmatrix kost rekenkracht.
+Bij het oplossen van veel stelsels wil men deze preconditioneringsmatrices kunnen hergebruiken om zo de totale rekentijd te beperken.
+
+In hoofdstuk~\ref{ch:distributed-preconditioning} behandelen we dit onderwerp door het algoritmisch plaatsen van preconditioneringsmatrices in het parameterdomein.
+We stellen een tweestapsaanpak voor:
+\begin{enumerate}
+    \item Eerst \emph{leren we een surrogaatmodel} dat voorspelt hoeveel iteraties de iteratieve methode nodig heeft om een lineair systeem met een preconditioneringsmatrix op te lossen;
+    \item Vervolgens gebruiken we dit surrogaatmodel door middel van een \emph{locatie-allocatie-aanpak} om te bepalen hoeveel, en op welke parameterlocaties, preconditioneringsmatrices moeten worden geplaatst zodat de totale rekentijd geminimaliseerd wordt.
+\end{enumerate}
+
+Tot slot testen we het voorgestelde algoritme in hoofdstuk~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, waar we Helmholtzverstrooiing tegen een geparametriseerd object beschouwen.
+Aangezien de Helmholtzvergelijking bij hoge frequenties leidt tot slecht geconditioneerde stelsels van vergelijkingen, is algoritmische plaatsing van preconditioneringsmatrices hier geschikt om de totale rekenlast te verminderen.
+In dit laatste hoofdstuk voeren we numerieke experimenten uit voor verschillende parameterdimensies, frequenties en afnameconstanten van de Fourierdecompositie van de rand van het object, en realiseren een besparing tot wel 90\% ten opzichte van gebruikelijke methoden.

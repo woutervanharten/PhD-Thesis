@@ -1,0 +1,43 @@
+In this chapter, we developed a strategy to place multiple preconditioners in the parameter space, which can reduce the computational cost of repeatedly solving parameterized linear systems.
+We use a two-step process where we start by learning a surrogate for the number of Krylov iterations with gray-box Gaussian process regression trained with a cost-aware active learning strategy.
+This surrogate model allows for estimating an optimal number of preconditioners using a greedy approach.
+Secondly, we use a location-allocation algorithm to optimize preconditioner locations.
+
+To choose the \textit{Gaussian process prior}, we use a-priori bounds on the number of GMRES iterations.
+The modeling error caused by the upper bounds is partly corrected by training the GPR and its hyperparameters.
+In different applications where such upper bounds are not available, the distance to the origin could be used for the prior mean.
+Because we use a-priori bounds this way, the prior is more informative, and less training is required.
+
+For the \textit{Gaussian process kernel}, we have used a symmetrized Matérn kernel per dimension, summed over all dimensions.
+This assumption limits the richness of the function space we approximate.
+However, to find large improvements in the total computational burden, a `good' rather than the most accurate surrogate is enough.
+
+We introduced \emph{the stabilizing predictions} stopping criterion, halting training when the averaged disagreement ratio drops below $1\%$.
+The agreement is defined whenever the difference in the predicted number of iterations was less than one, or the values had a difference of less than $1\%$.
+As we will see in practice in Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, this results in well-trained Gaussian processes.
+However, training time may become substantial for difficult problems, such as those with large changes in the matrix values.
+Therefore, an upper bound on the number of training samples remains useful.
+
+For \textit{placing the preconditioners}, we solve a high-dimensional optimization problem where the dimensionality scales with the product of the number of preconditioners and the parameter dimension.
+We use a location-allocation approach to handle this high dimensionality during preconditioner placement.
+Since the iterations are costly, we perform them until the improvement is smaller than the computation time.
+The main cost lies in the location step, where the geometric median of each partition cell $W_k$ has to be computed.
+Although the cost of this preprocessing step using an off-the-shelf optimizer (L-BFGS-B) is within our requirements, further savings could be achieved with an ad-hoc optimizer.
+Unlike previous work~\cite{venkovic2024}, we do not require the partitions $W_k$ to be of equal cardinality, possibly resulting in preconditioners with few allocated parameter locations and others with many.
+However, this is not problematic as we have not considered any multithreaded approaches which might alter this tradeoff.
+
+Determining the optimal \textit{number of preconditioners} is difficult, as we cannot execute the location-allocation algorithm multiple times, and we thus use a greedy approach.
+Given the existence of local minima in the preconditioner placement, any further improvements will be overshadowed by these local minima.
+Since the number and the placement of preconditioners depend on the ratio of preconditioner computation time to Krylov iteration time, our algorithm is the most reliable when there are either no other computational loads or a constant load.
+
+Other extensions to this work can be considered when the linear systems are not (all) known a-priori but follow from an iterative filtering approach such as, for example, in~\cite{vanharten2024}.
+In this case, the optimal preconditioner locations are dependent on the future filtering positions, which have to be anticipated for the application under consideration.
+
+In this chapter, we applied our work using an LU preconditioner, which represents the complete inverse of the matrix at the preconditioner location.
+Less expensive preconditioners could be used, but they may not yield as much improvement because we repeatedly reuse the preconditioners we have computed, thereby dividing the higher computational load across multiple linear system solves.
+Other methods with a separate offline and online phase could be included in the same framework in addition to the use of preconditioners.
+For example, computing a good initial guess for the Krylov solver could be considered and modeled similarly to the preconditioners we have considered.
+
+Moreover, we employ a Gaussian process regression surrogate model.
+However, other surrogate models could be considered for varying accuracy requirements.
+Further computational gains could be obtained by considering multithreaded approaches during training, but a thorough analysis of this approach is necessary.

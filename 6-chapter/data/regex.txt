@@ -1,0 +1,30 @@
+cat 2024-11* | grep event | grep -E "Npc=|Pre-|Post-"
+
+Then delete the following to get the columns of Npc.dat:
+
+\', \'level\': \'debug\'.*\n.*in GMRES
+in Total.*\n.*GMRES
+\{\'e.*=
+in Total.*\}
+s
+
+Vlim test:
+cat $(find . -regextype sed -regex "^.\/[0-9]\/.*$" | sort) | grep -E "parameter_dimension|'rms"
+
+cat 2025-01-07T13:34:24.log | grep -E "c_matern  rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | sed -E "s/\./,/"^C
+cat 2025-01-07T13:34:24.log | grep -E "n_matern  rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | sed -E "s/\./,/"^C
+cat 2025-01-07T13:34:24.log | grep -E "' rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | sed -E "s/\./,/"^C
+
+
+echo "[[" > "$i.txt" && cat "$i" | grep -E "n_matern  rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.txt" && echo '],' >> "$i.txt" && echo "[" >> "$i.txt" && cat "$i" | grep -E "c_matern  rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.txt" && echo '],' >> "$i.txt" && echo "[" >> "$i.txt" && cat "$i" | grep -E "' rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.txt" && echo ']]' >> "$i.txt"
+
+for i in $(find -regex '\./202[0-9].*$' | sort | tail -n3); do echo "[[" > "$i.txt" && cat "$i" | grep -E "n_matern  rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.txt" && echo '],' >> "$i.txt" && echo "[" >> "$i.txt" && cat "$i" | grep -E "c_matern  rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.txt" && echo '],' >> "$i.txt" && echo "[" >> "$i.txt" && cat "$i" | grep -E "' rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.txt" && echo ']]' >> "$i.txt"; done
+
+for i in $(find -regex '\./202[0-9].*.log$' | sort | tail -n10); do cat "$i" | grep -E "n_matern  rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n' ',' > "$i.csv" && echo '' >> "$i.csv" && cat "$i" | grep -E "c_matern  rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.csv" && echo '' >> "$i.csv" && cat "$i" | grep -E "' rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.csv" && echo '' >> "$i.csv" && csvtool transpose "$i.csv" > "$i.csv2" && rm "$i.csv" && mv "$i.csv2" "$i.csv" && cat "$i" | grep -E "'Register result m\(y\_train\)=|Solve linear system for y_train=" | sed -E "s/\{.*for y\_train=/,\(/" | sed -E "s/\{.*ain\)=/, /" | sed -E "s/', 'le.*$/\)/" | tr "\n" "," | sed -E "s/\),/\)/g" | sed -E "s/,\(/,\n\(/g" | sed -E "s/\)$/\)\n/" | sed -E "s/^,$//" | sed -E "s/\)\)/\)/" > "$i.traindata.txt" ; done
+
+normalized:
+
+for i in $(find -regex '\./202[0-9].*.log$' | sort | tail -n10); do cat "$i" | grep -E "n_matern  normalized rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n' ',' > "$i.csv" && echo '' >> "$i.csv" && cat "$i" | grep -E "c_matern  normalized rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.csv" && echo '' >> "$i.csv" && cat "$i" | grep -E "' normalized rms" | sed -E "s/\{.*error: //" | sed -E "s/', 'le.*$//" | tr '\n;' ', ' >> "$i.csv" && echo '' >> "$i.csv" && csvtool transpose "$i.csv" > "$i.csv2" && rm "$i.csv" && mv "$i.csv2" "$i.csv" && cat "$i" | grep -E "'Register result m\(y\_train\)=|Solve linear system for y_train=" | sed -E "s/\{.*for y\_train=/,\(/" | sed -E "s/\{.*ain\)=/, /" | sed -E "s/', 'le.*$/\)/" | tr "\n" "," | sed -E "s/\),/\)/g" | sed -E "s/,\(/,\n\(/g" | sed -E "s/\)$/\)\n/" | sed -E "s/^,$//" | sed -E "s/\)\)/\)/" > "$i.traindata.txt" ; done
+
+
+cat "$i" | grep -E "'Register result m\(y\_train\)=|Solve linear system for y_train=" | sed -E "s/\{.*for y\_train=/\(,/" | sed -E "s/\{.*ain\)=/, /" | sed -E "s/', 'le.*$/\)/" | tr "\n" "," | sed -E "s/\),/\)/g" | sed -E "s/,\(/,\n\(/g" | sed -E "s/\)$/\)\n/" > "$i.traindata.txt"

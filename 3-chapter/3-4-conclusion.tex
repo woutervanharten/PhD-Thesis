@@ -1,0 +1,24 @@
+In this chapter, we have shown that the convergence rates of Taylor coefficients of solutions to a particular class of elliptic PDEs can benefit significantly from using functions with localized support to represent function-valued parametric inputs.
+Namely, this can lead to a theoretical improvement of $\frac{1}{2}$ in the decay rate of the Taylor coefficients.
+Due to Stechkin's lemma, this translates to an improvement of $\frac{1}{2}$ in the asymptotic convergence rate of the best-$N$-term truncation of the Taylor surrogate model.
+
+We have not investigated it here, but because of similarities in the PDEs, we expect our approach to work for the fourth-order equation $\Delta(a\Delta u)=f$ on a bounded Lipschitz domain or for the parabolic equation $\partial_t u-\nabla \cdot(A\nabla u) = f$ set on $(0,T)\times D$.
+We refer to the discussion in~\cite{bachmayr2017a} for these and similar equations.
+
+As mentioned in Section~\ref{sec:state-of-the-art}, our results can be valuable in uncertainty quantification when adopting a parametric approach.
+The parameter $\y$ is the image of independent, identically distributed random variables.
+However, we stress that, in that case, the choice of the functions in the expansion of the spatially dependent input is a modeling choice: different expansions give rise to random fields with diverse statistical properties.
+
+A possible extension of the work in this chapter is to consider the summability of Legendre coefficients, for which one can expect the proof to be doable by building on the estimates in~\cite{bachmayr2017a,dung2022}.
+
+The results of this chapter have potential relevance for other surrogates.
+Since the summability properties of Taylor (and Legendre) expansions have often been used to show convergence rates of other polynomial surrogates, such as polynomial chaos- and collocation-based ones~\cite{beck2014,beck2012,chkifa2014}, their convergence rates may also benefit from expansions with localized support.
+For heuristic algorithms, this is not necessarily the case~\cite{ernst2021}.
+Next to this, they are also used to prove convergence of quadrature~\cite{dick2016,schillings2013,zech2020} for the computation of moments, approximation properties of neural networks~\cite{opschoor2022,schwab2019}, and reduced basis and proper orthogonal decomposition~\cite{bachmayr2017a,cohen2015}.
+Locality may also benefit the performance of these methods.
+However, sound theoretical and numerical investigations are needed for these frameworks.
+
+Finally, the results presented in this chapter are for the Poisson equation.
+Extensions to other equations, such as the parameterized Helmholtz equation~\eqref{eq:parameterized_helmholtz_pde}, can be considered.
+To extend these results, we could restrict ourselves to the large wavelength regime to ensure the required coercivity of the bilinear form.
+On the other hand, frequency-explicit results might be attainable using the bounds in~\cite{moiola2019}, but this remains to be shown analytically.

@@ -1,0 +1,26 @@
+\chapter*{About the cover}
+
+\markboth{About the cover}{About the cover}
+\addcontentsline{toc}{chapter}{About the cover}
+
+The image on the cover shows a Helmholtz scattering problem in which the incoming wave interacts with the title of this thesis.
+Unlike the scattering problem outlined in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}, the cover is concerned with a \emph{transmission problem}, in which the wave propagates through a scatterer with a different refractive index than the surrounding environment.
+Contrary to the scatterer defined in Section~\ref{subsec:helmholtz-equation}, the boundaries of the letters that make up the title of this thesis do not constitute a non-trapping domain.
+This makes the problem more poorly conditioned when compared to the linear systems considered in Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}.
+
+We used a computational domain of 290 by 170 units, on which the Helmholtz equation is posed with a frequency of $k=3$.
+Although this frequency is not particularly high when compared to the computations in Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, the size of the domain makes this a computationally expensive problem.
+We consider a refractive index of $ n\equiv 1$ outside the scatterer and $n\equiv 10^{-2}$ inside.
+These values have been chosen artistically, as the resulting cover should be visually appealing.
+
+We meshed the domain using \texttt{Gmsh}~\cite{geuzaine2009} with adaptive mesh size to counteract the pollution effect~\cite{babuska1997} and resolve the fine details of the title text.
+Moreover, the mesh size is limited from above such that the final rendering could be performed on a consumer machine with 32GB of memory using \texttt{ParaView}.
+These meshing constraints, together with the pollution effect, resulted in the chosen frequency $k$.
+
+Due to these constraints, the resulting finite element system consists of 53,996,740 degrees of freedom.
+We used \texttt{DOLFINx}~\cite{alnaes2014a,baratta2023,scroggs2022,scroggs2022a} to construct the linear systems, which we solved with GMRES in \texttt{PETSc}~\cite{brown2022}.
+GMRES iterations were performed until the resulting image visually converged.
+Computations concluded with a relative error of $10^{-3}$ after one million GMRES iterations.
+
+To further manage the computational load, we used \texttt{OpenMPI} to efficiently parallelize the computation over 80 cores.
+All computations were run in a containerized environment on a machine with an \texttt{AMD EPYC 7J13} processor with 128 cores hyper-threaded to 256 threads and equipped with 1024 GB of memory.

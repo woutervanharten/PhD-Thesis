@@ -1,0 +1,107 @@
+\ProvidesPackage{mycommands}
+
+\newcommand*{\persistentprev}{40}
+\newcommand*{\npc}{200}
+\newcommand*{\firstdown}{0}
+\newcommand{\npcgraph}[1]{
+    \begin{tikzpicture}
+    \newcommand{\datafile}{#1}
+    \pgfplotstableread[col sep=tab]{\datafile}\datatable
+
+    % Count the number of rows in the table
+    \pgfplotstablegetrowsof{\datatable}
+    \pgfmathtruncatemacro{\numrows}{\pgfplotsretval}
+
+    % Initialize previous value
+    \pgfplotstablegetelem{0}{scaledinit}\of{\datatable}
+    \pgfmathsetmacro{\firstincrease}{-1} % Initialize first increase index
+    \pgfmathsetmacro{\found}{0} % Flag for found increase
+    \renewcommand*{\persistentprev}{40}
+    \renewcommand*{\npc}{200}
+
+    \foreach \i in {1,...,\numexpr\numrows-1\relax} {
+        \pgfplotstablegetelem{\i}{scaledinit}\of{\datatable}
+        \pgfmathsetmacro{\current}{\pgfplotsretval}
+        \pgfmathsetmacro{\prev}{\persistentprev} % Update previous value
+        \ifthenelse{\lengthtest{\current pt > \prev pt}}{ % Check for increase
+            \ifthenelse{\firstdown > 0}{
+                \pgfmathsetmacro{\firstincrease}{\i} % Store first increase index
+                \pgfmathsetmacro{\found}{1} % Set found flag
+                \xdef\npc{\i-1}
+                \breakforeach % Exit loop
+            }{
+                \xdef\firstdown{1}
+            }
+%        \node (10, 10) {\npc \, };
+        }{
+            \xdef\firstdown{0}
+        }
+        \pgfmathsetmacro{\prev}{\current} % Update previous value
+        \xdef\persistentprev{\prev}
+    }
+    \begin{axis}[
+    ymode=log,
+    scaled y ticks=false, % disable automatic scaling
+    xmin=0,
+    xmax=200,
+    grid=both,
+    legend style={at={(0.6,0.92)}},
+    log ticks with fixed point,
+    ytick={1000, 2000, 3000, 4000,5000,6000,7000,8000,9000,10000,20000,30000,40000},
+    y tick label style={/pgf/number format/fixed},
+    yticklabel={
+        \pgfmathparse{e^(\tick - 9.210340371976182)}%
+        %            \pgfmathparse{e^(\tick - 6.907755278982137)}%
+        \pgfmathprintnumber[fixed,precision=1]{\pgfmathresult}
+    },
+    mark size=5,
+    width=0.975\textwidth,
+    height=0.45\textwidth,
+    extra x ticks={\npc},
+    extra x tick labels={\begin{minipage}{18pt}\vspace{8pt}$N_{pc}^*$\end{minipage}},
+%                    extra x tick labels={$N_{pc}^*$},
+    xlabel=$N_{pc}$,
+    ylabel=$\tau_{total}\,\,(s)$,
+    after end axis/.code={
+    % place a node at top-right
+    \node[anchor=south]
+    at (rel axis cs:0,1) {\qquad$\times 10^4$};
+    }
+    ]
+
+    \addplot[thick,red] table [mark=None, x=Npc, y=init]{\datafile};
+    \addlegendentry{Initialization}
+    \addplot[thick,blue] table [mark=None, x=Npc, y=loc-alloc]{\datafile};
+    \addlegendentry{Location-Allocation}
+    \addplot[thick,black,dashed] table [x=Npc, y=full_loc_alloc]{\datafile};
+    \addlegendentry{Full Location-Allocation}
+    \end{axis}
+    \end{tikzpicture}%
+}
+
+\newcommand{\kernelplot}[1]{
+    \begin{tikzpicture}
+        \begin{axis}[
+            label style={font=\small},
+            ticklabel style = {font=\small},
+            xmin=0,
+            xmax=200,
+            ymin=0,
+            ymax=20,
+            width=\textwidth,
+            height=0.45\textwidth,
+            xlabel=$N_{train}$,
+            ylabel near ticks,
+            ylabel=RMSE]
+            \addplot[black,thick] table [mark=none, x=Ntrain, y=Matern#1]{6-chapter/data/Vlim3.dat};
+            \addlegendentry{Matérn kernel}
+            \addplot[black,thick,dashed] table [mark=none, x=Ntrain, y=Symmetricmatern#1]{6-chapter/data/Vlim3.dat};
+            \addlegendentry{Symmetric Matérn kernel}
+            \addplot[black,thick,dotted] table [mark=none, x=Ntrain, y=Standard#1]{6-chapter/data/Vlim3.dat};
+            \addlegendentry{Univariate symmetric Matérn kernel}
+            \label{fig:plot_kernels#1}
+        \end{axis}
+    \end{tikzpicture}
+    }
+
+\endinput

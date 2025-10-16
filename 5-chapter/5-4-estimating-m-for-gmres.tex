@@ -1,0 +1,293 @@
+To apply Algorithm~\ref{alg:location-allocation}, we need a function approximating the number of Krylov iterations.
+We propose an approach based on Gaussian process regression (GPR), using a priori bounds on the number of iterations to initialize a gray-box GPR~\cite{astudillo2022}.
+We illustrate this on GMRES iterations with LU preconditioning, setting $\mathbb{P}(\yi)=\mathbb{A}(\yh(\yi))^{-1}$ to solve
+\begin{equation}
+    \mathbb{A}(\yh(\yi))^{-1}\mathbb{A}(\yi)\u(\yi)=\mathbb{A}(\yh(\yi))^{-1}b,\qquad \text{ for }\yi\in W.\label{eq:precondsystem}
+\end{equation}
+%where, and in the remainder of this work, we note the preconditioner location with $\yh$ and $\yh_k$, and the parameter location we are solving with $\y$ or $\y_i$.
+We construct the gray-box GPR in Sections~\ref{subsec:gray-box-gpr}--\ref{subsec:hyperparameter-tuning} and the training of the GPR is presented in Section~\ref{subsec:gpr-training}.
+This surrogate can then be used for $m$ in the preconditioner placement strategy outlined in Section~\ref{sec:preconditioner-placement}.
+
+
+\subsection{Gray-box Gaussian Process Regression}\label{subsec:gray-box-gpr}
+To model $m(\cdot)$, we want to identify an unknown function given some noisy measurements at specific training locations.
+Gaussian process regression has been a popular tool for finding such a function~\cite{leibfried2020}.
+GPR has also been a popular tool for optimization problems, often used in Bayesian optimization, where it aims to use all the information obtained at previous training locations instead of local gradients and Hessians.
+Moreover, if we assume Gaussian noise on the training values, the posterior Gaussian process can be evaluated efficiently~\cite{bishop2006}.
+
+GPR has also gained attention lately in the context of hyperparameter tuning for training neural networks~\cite{bardenet2013}.
+Finding good values for the hyperparameters requires expensive experiments with unknown a-priori costs.
+This problem is equivalent to our problem at hand, as we want to train $m(\cdot)$ using some training points from $W$.
+If we choose a training point that requires many GMRES iterations, the experiment will be prohibitively expensive.
+However, if we just use cheap experiments, we will not learn as much, harming the training process.
+GPR methods allow us to tackle this problem by iteratively choosing new training points by maximizing an acquisition function and balancing the knowledge gain and the expected cost of the experiment.
+We will further discuss the training process of the Gaussian process in Section~\ref{subsec:gpr-training}.
+
+The Gaussian process allows us to incorporate any a-priori knowledge about $m(\cdot)$ we have through the prior mean and the kernel.
+%Moreover, we can model
+To include this prior knowledge, we consider a Gray-box GPR, modeling $m$ as a nonlinear function of a Gaussian process~\cite{astudillo2022}.
+With this nonlinear function, we can impose a more rigid structure on $m$, which we use to include prior knowledge about $m(\cdot)$ into our estimate.
+
+In the case of GMRES, we start by considering the Elman estimate~\cite{elman1982,graham2021}:
+\begin{theorem}[Elman estimate]
+    Let $A$ be a matrix with $0 \notin W(A) \coloneqq \left\{ (Ax, x): x \in \mathbb{C}^n, |x|=1 \right\}$.
+    Then, with $0 \leq \beta < \pi/2$ defined by
+    \begin{equation}
+        \cos(\beta) \coloneqq \frac{\dist(0, W(A))}{|A|}\label{eq:betadef},
+    \end{equation}
+    when using GMRES to solve $Ax=b$, the residual $r_m$ at the $m^\text{th}$ iteration satisfies
+    \begin{equation}
+        \varepsilon=\frac{|r_m|}{|r_0|}\leq \sin(\beta)^m\label{eq:elmanest},
+    \end{equation}
+    for all $m\in\mathbb{N}$,
+    where $\varepsilon$ is the relative error.
+    Moreover, if $|I-A|_{2,2}\leq \alpha < 1$, we have
+    \begin{equation}
+        \sin(\beta) \leq \frac{2\sqrt{\alpha}}{\alpha + 1}.\label{eq:alphabound}
+    \end{equation}
+\end{theorem}
+According to the Elman estimate, an upper bound on the matrix norm $|I-\mathbb{A}^{-1}(\y_k)\mathbb{A}(\y_i)|_{2,2}$ provides us with an upper bound on the required number of GMRES iterations.
+Moreover, if we estimate $\alpha$ as a function of $\y_i-\y_k$, equation~\eqref{eq:alphabound} provides us with an estimate for $m(\y_i-\y_k)$.
+Hence, we rewrite~\eqref{eq:alphabound} and choose
+\begin{equation}
+    m(\y)=\ln(\varepsilon)\ln\left( \frac{2\sqrt{\mathbb{E}\left[\alpha(\y)\right]}}{\mathbb{E}\left[\alpha(\y)\right] + 1} \right)^{-1}\label{eq:mdef},
+\end{equation}
+for $\y\in Y$ and where, exploiting translation invariance, $\alpha(\y)$ models $\alpha$ in terms of $\y$, sampled from a Gaussian process
+\begin{equation}
+    \alpha(\y) \sim GP(\mu_0(\y, C), K(\y, \y'))\label{eq:alpha_GP_def},
+\end{equation}
+with prior mean $\mu_0(\y, C)$, possibly dependent on $N_{hyp}$ hyperparameters $C=( C_1, \ldots,$ $ C_{N_{hyp}} )\in\mathbb{R}^{N_{hyp}}$, and kernel $K(\y, \y')$.
+
+The prior mean is problem-specific and needs to be chosen carefully.
+In Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, we will expand on this in the case of Helmholtz scattering as introduced in Chapters~\ref{ch:introduction} and~\ref{ch:uncertainty-quantification-for-paramterized-domains}.
+Moreover, we elaborate on the kernel choice in Section~\ref{subsec:kernel}.
+To simplify the notation, we set
+\begin{equation*}
+    g(\alpha) \coloneqq \ln(\varepsilon)\ln\left(\frac{2\sqrt {\alpha}}{\alpha + 1}\right)^{-1},
+\end{equation*}
+such that
+\begin{equation}
+    m(\y) = g\left(\mathbb{E}\left[ \alpha(\y) \right]\right)\label{eq:m_estimate}.
+\end{equation}
+\begin{remark}[Nonlinearity of $g(\alpha)$]
+    Ideally, we would like to use $m(\y) = \mathbb{E}\left[g( \alpha(\y)) \right]$, as this accurately describes the expected value.
+    However, this requires integrating over the probability space, which is analytically intractable and computationally expensive.
+
+    To perform the preconditioner placement outlined in Section~\ref{sec:preconditioner-placement} accurately, it is important for $m(\cdot)$ to be accurate near the boundaries of the partition $\left\{ W_k \right\}_{k}$: this determines the distance between the preconditioners, and therefore, $N_{pc}$.
+    At the boundaries of the partitions, the values for $\alpha$ are neither very low nor high.
+    As we can see in Figure~\ref{fig:gplot}, $g(\alpha)$ is concave for small ($\alpha < 0.01$) values of $\alpha$ and convex for large values.
+    Outside these regions, that is in the area $[0.01, 0.03]$ in Figure~\ref{fig:gplot}, $g(\alpha)$ remains rather linear, such that the effect of switching $\mathbb{E}\left[ \cdot \right]$ and $g(\cdot)$ is minimal.
+\end{remark}
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+        domain=0.001:0.6,
+        samples=400,
+        xlabel={$\alpha$},
+        ylabel={$g(\alpha)$},
+        grid=minor,
+        thick,
+        xmin=0,
+        xmax=0.6,
+        ymin=0,
+        width=\textwidth,
+        ylabel near ticks,
+        height=0.45\textwidth,
+        yticklabels={}, % Removes y-axis tick labels
+        ]
+        \addplot[black, thick] ({x}, {-1/ln((2*sqrt(x))/(x+1))});
+
+        \coordinate (spyviewer) at (rel axis cs:0.19,0.9);
+        \end{axis}
+        \begin{axis}[
+            domain=0.00001:0.025,
+            at={(spyviewer)},
+            anchor={north},
+            tiny,
+            xmin=0,
+            xmax=0.025,
+            xtick={0, 0.01, 0.02},
+            xticklabels={0, 0.01, 0.02}, % Removes y-axis tick labels
+            ymin=0.2,
+            ymax=1.01,
+            scaled x ticks=false,
+            yticklabels={}, % Removes y-axis tick labels
+        ]
+            \addplot[black, thick] table [x=X,y=Y,col sep=comma] {6-chapter/data/g_alpha_detail.csv};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Plot of $g(\alpha)$ from 0 to $0.6$, up to scaling by hyperparameters.}
+    \label{fig:gplot}
+\end{figure}
+
+\begin{remark}[Different estimates]
+    The Elman estimate is based on the field of values of $\mathbb{A}(\yh(\yi))^{-1}\mathbb{A}(\yi)$, but different estimates could be considered based on eigenvalues or pseudospectra, see~\cite{embree1999} for a clear overview.
+    However, different estimates all have their strengths and weaknesses, and we considered the Elman estimate because of the available bounds for the field of values for the Helmholtz equation.
+
+    Moreover, a sharper bound than the Elman bound can be considered~\cite{beckermann2005}.
+    This bound, however, does not allow for explicit bounds in terms of $\alpha$, which we exploit in this work.
+    Hence, we do not consider it in this thesis.
+\end{remark}
+
+
+\subsection{Kernel}\label{subsec:kernel}
+For our method to work efficiently in high parameter dimensions, we have to be careful in choosing the kernel.
+Our main adversary in this task is the \emph{curse of dimensionality}, which has attracted scientific interest in the case of Gaussian processes.
+Choosing the right kernel might seem more like an art than a science.
+Therefore, we refer the reader to~\cite[Chapter 2]{duvenaud2014} for an excellent overview of kernel construction, colloquially known as the `Kernel cookbook,' and~\cite{binois2022} for an overview of the curse of dimensionality in Gaussian processes.
+
+In our work, we require all input dimensions of the parameter space to take part in the Gaussian process.
+Hence, we discard methods that rely on lower dimensional embeddings, including (dynamic) variable selection approaches.
+Additive methods, on the other hand, take all input parameters into account while offering a computational improvement by limiting their interaction by considering functions of the form:
+\begin{equation}
+    f(\x) = \mu(\x) + \sum_{i=1}^N g_i(x_i)\label{eq:funsum},
+\end{equation}
+with univariate functions $g_i(x_i)$.
+This approach has been transplanted to the Gaussian process framework by considering univariate kernels~\cite{duvenaud2011,neal1997}:
+\begin{equation}
+    K(\x, \x') = \sum_{i=1}^N K_i(x_i, x_i')\label{eq:sumkernel},
+\end{equation}
+such that samples from the resulting Gaussian process and its mean are of the form~\eqref{eq:funsum}.
+Each kernel $K_i(\cdot, \cdot)$ is a symmetric Matérn kernel~\cite{duvenaud2014}:
+\begin{align}
+    K_i(y_i, y_i') &= K^\text{sym}_i(K^{\text{Mat\'ern}}_{\nu}(y_i,y_i')) \\
+    &= \sum_{(m_1,m_2)\in\left\{ -1, 1 \right\}^2}  K^{\text{Mat\'ern}}_{\nu}(m_1 y_i,m_2 y_i'),\label{eq:univariatekernel}
+\end{align}
+where $K^{\text{Mat\'ern}}_{\nu}(\cdot, \cdot)$ is the standard Matérn kernel.
+The symmetrization has been performed using the \emph{sum over orbits} technique~\cite{duvenaud2014}, and for minimal regularity, we choose $\nu=\frac{1}{2}$ for the smoothness parameter.
+
+Although this additive approach partly mitigates the high dimensionality, we take another step.
+We take inspiration from~\cite{hvarfner2024} and choose the correlation lengths of the kernels $K_i(\cdot, \cdot)$ to be inversely proportional to the `importance' in the $i^\text{th}$ dimension.
+By increasing the correlation lengths in the parameter dimensions that bear less importance, the variance of the trained Gaussian process will be lower in those dimensions~\cite{shende2022}.
+In essence, this anisotropy mitigates the possible high number of parameters by reducing the effective size of the parameter domain $Y$, reducing the effective model complexity~\cite{hvarfner2024}.
+To achieve this, we define the vector $\{\gamma_i\}_{i=1}^N=\bm{\gamma}\in\mathbb{R}^N$ such that it corresponds to the `importance' of the dimensions.
+A similar approach regarding sparse grids has been taken in~\cite{addy2025}.
+In Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, we outline how we can obtain these anisotropy weights.
+
+\subsection{Hyperparameter tuning}\label{subsec:hyperparameter-tuning}
+In the previous sections, we have considered hyperparameters in the prior mean.
+The standard approach to selecting them is to maximize the likelihood of the training data~\cite{jones1998,rasmussen2000} given the prior mean and kernel.
+However, since we use correlation lengths inversely proportional to the importance of the dimension to reduce the computational cost, large correlation lengths negatively affect the accuracy of the chosen hyperparameters.
+
+To address this, we choose hyperparameters to minimize the mean squared error of the training data with respect to the prior mean:
+\begin{equation*}
+    C=(C_1, \ldots, C_{N_{hyp}}) = \argmin_{C^\ast \in \mathbb{R}^{N_{hyp}}} \sum_{\y_{i_{train}}}\left(\mu_0(\y_{i_{train}}| C^\ast) - \alpha_{\y_{j_{train}}}  \right)^2,
+\end{equation*}
+where $\y_{i,{train}}$ are the training locations and $\alpha_{\y_{i,{train}}}$ the corresponding values for $\alpha$.
+We solve this minimization problem using a gradient-based optimization routine, as the objective function is smooth and has explicit derivatives.
+In the numerical experiments in Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, we used L-BFGS-B.
+
+\subsection{Training the Gray-box Gaussian Process Regression}\label{subsec:gpr-training}
+Now that we have a model to describe $m(\cdot)$, we need to train the model.
+To this aim, we propose an active learning strategy.
+We train the model by initializing a mean-based preconditioner at $\bar{\y}$, the center of $W$.
+With this mean-based preconditioner at hand, we solve the linear system~\eqref{eq:linear_system} using the mean-based preconditioner $\mathbb{A}(\bar{\y})^{-1}$ for different training points $\y_{i,train} \in W$ and record $\left\{y_{i,train}, \alpha(\y_{i,train})  \right\}$.
+These evaluations serve two goals; on the one hand, we obtain solutions to the linear systems at the training points, and on the other hand, we obtain training pairs $m(y_{train}-\bar{\y})=m_{\y_{train}}$.
+To select these points, we follow~\cite{astudillo2022} and iteratively select a training point from $W$ by maximizing an acquisition function $f_{acq}:W\to\mathbb{R}$ and adding it to the Gaussian process regression model.
+
+Since evaluation costs depend on $m(\y)$, we account for this in $f_{acq}$, similarly to cost-aware Bayesian optimization~\cite{luong2021,xie2024}.
+We define $f_{acq}$ as the variance-to-cost ratio, capped at a cutoff-value $m_{\max}=\frac{\tau_{pc}}{\tau_{GMRES}}$, ensuring unimportant training data is not selected.
+The values of $\tau_{pc}$ can be estimated when computing the mean-based preconditioner, and $\tau_{GMRES}$ can be estimated on the fly using the computed training points.
+This is a particular instance of the well-studied expected improvement per unit cost~\cite{snoek2012}:
+\begin{equation}
+    f_{acq}(\y; m_{max})\coloneqq
+    \begin{cases}
+        \frac{\mathbb{V}\left[ g(\alpha(\y)) \right]}{\mathbb{E}\left[ g(\alpha(\y)) \right]}, &\text{ for } \mathbb{E}\left[ g(\alpha(\y)) \right] \leq m_{max},\\
+        -\infty, &\text{ else},
+    \end{cases}\,\,\,\,\,\,\,
+    \label{eq:f-acq-def}
+\end{equation}
+where $\mathbb{E}\left[ g(\alpha(\y)) \right]$ and $\mathbb{V}\left[ g(\alpha(\y)) \right]$ are the mean and variance of $g(\alpha(\y))$ from~\eqref{eq:m_estimate}, respectively.
+To compute~\eqref{eq:f-acq-def}, we approximate $\mathbb{V}\left[ m(\y) \right]$ by central differences:
+\begin{equation*}
+    \mathbb{V}\left[ g(\alpha(\y)) \right] \approx \frac{g(\mathbb{E}\left[ \alpha(\y) \right] + \mathbb{V}\left[ \alpha(\y) \right])-g(\mathbb{E}\left[ \alpha(\y) \right] - \mathbb{V}\left[ \alpha(\y) \right])}{2}.
+\end{equation*}
+This introduces a slight bias but enables efficient computations, as the expected values can be computed directly~\cite[Chapter~6]{bishop2006}.
+
+Each new training point is then selected by maximizing the acquisition function:
+\begin{equation*}
+    \y_{i,train} = \argmax_{\y_i\in W} f_{acq}(\y_i-\bar{\y};m_{\max}),
+\end{equation*}
+and each time a training is added, the hyperparameters are fitted again.
+
+The acquisition function requires the hyperparameters itself, and hence, to start the training, we initialize the Gaussian process with two points, $\bar{\y}$ and $\y_{\min}=\argmin_{\y\in W} \mu_0(\y, 1)$.
+At $\bar{\y}$, we set $\alpha(\bm{0})=g^{-1}(1)$, and at $\y_{\min}$ we solve $\mathbb{A}(\bar{\y})^{-1}\mathbb{A}(\y_{\min})=\mathbb{A}(\bar{\y})^{-1}b$ to obtain $m({\y_{\min}}-\yb)$.
+
+Training continues until the surrogate model achieves a satisfactory level of accuracy.
+Ideally, we would like to compute the accuracy of the surrogate model after each added training point by evaluating the surrogate model at some sample locations from a test set.
+We would then compare the results with the actual number of GMRES iterations needed.
+However, this poses a significant computational burden due to the need to solve many large linear systems.
+
+This problem is rather tricky to solve and is generally known as the \emph{stopping criterion problem} in active learning.
+The goal is to find a stopping criterion that minimizes the cost while maximizing surrogate accuracy.
+The main difficulty lies in the expensive solves, which we cannot evaluate to compare the model performance.
+
+Several stopping criteria have been proposed, and a comprehensive review and comparison are presented in~\cite{pullar-strecker2024}, which explains the advantages and disadvantages of several stopping criteria.
+Here we choose the \emph{Stabilizing predictions} (SP) criterion~\cite{bloodgood2009,cohen1960}.
+The SP criterion stands out as ``aggressive'', indicating that it stops close to the optimal point, possibly on the early side.
+Moreover, the comparison study in~\cite{pullar-strecker2024} found that it stopped in almost all their tests, which is a desirable feature.
+Since this criterion is originally defined on labeled data, we adapt it to the continuous scale of $m(\cdot)$ by defining an `agree' whenever the relative difference between two iterations is lower than $1\%$, with a minimum of one iteration.
+
+\subsection{Assembling the surrogate}\label{subsec:assembling-the-surrogate}
+With the collected training points $W_{train}=\left\{ \y_{1,train}, \ldots, \y_{N_{train}, train} \right\}$ and Gaussian process values $\bm{\alpha}_{train}$$=\{ \alpha_{\y_{1, train}} ,$ $ \ldots,\alpha_{\y_{N_{train}, train}} \}$, we define $m(\cdot)$ as~\eqref{eq:mdef}, with
+\begin{align*}
+    \mathbb{E}\left[\alpha(\y)\right] &= \mu_0(\y) + \\&  K(\y+\yb, W_{train})^\top K(W_{train},W_{train})^{-1}(\bm{\alpha}_{train}-\mu_0(W_{train})),
+\end{align*}
+where $\mu_0(\cdot)$ is the prior mean from~\eqref{eq:GP-mean-def_y} and $K(\cdot, \cdot)$ is the kernel~\eqref{eq:sumkernel}.
+We summarize our strategy in Algorithm~\ref{alg:gray-box-gpr}.
+
+\begin{algorithm}
+    \caption{Gray-box GPR training for $m(\y)$}\label{alg:gray-box-gpr}
+    \phantom{}\textbf{Input} $W$, $\bar{\y}$
+    \Comment{Parameter locations, Mean-based parameter location}\\
+    \phantom{}\textbf{Output}
+    \phantom{}\hspace{\algorithmicindent} $Y_{eval}$, $m(\cdot)$, $m_{\max}$\\
+    \phantom{}\Comment{Evaluated locations, $m(\cdot)$ function, maximal valid value of $m(\cdot)$}
+    \begin{algorithmic}[1]
+        \State $\alpha \gets GP(\mu_0(\cdot), K(\cdot, \cdot)(\cdot, \cdot))$
+        \Comment{Initiate GP~\eqref{eq:alpha_GP_def}}
+        \State $\alpha \gets (\bm{0}, g^{-1}\left(1\text{ iteration}\right))$
+        \State $\tau_{PC} \gets PC(\bar{\y})$
+        \item[]\Comment{Initialize mean-based PC and store computation time}
+        \State $\y_{\min} = \argmin_{\y\in W} \mu_0(\y, 1)$
+        \State $Y_{eval} \gets \{\y_{\min}\}$
+        \Comment{List containing all evaluated parameter locations}
+        \State $\tau_{\y_{\min}}, m_{\y_{\min}} \gets GMRES(\mathbb{A}(\bar{\y})^{-1}\mathbb{A}(\y_{\min})=\mathbb{A}(\bar{\y})^{-1}b)$
+        \item[]\Comment{Initialize by evaluating for smallest $\|\cdot\|_{\gamma, 2}$}
+        \State $\tau_{tot}, m_{tot} \gets \tau_{\y_{\min}}, m_{\y_{\min}}$
+        \Comment{Total GMRES iterations computed and time spent on it}
+        \State $\alpha \gets (\y_{\min}-\bar{\y}, g^{-1}\left(m_{\y_{\min}}\right))$
+        \Comment{Add training data to the GP}
+        \State $SP \gets \{\}$
+        \Comment{List for SP results}
+        \item[]
+        \While{running average($SP$) $>$ $1\%$}
+            \State $m_{\max} \gets {\tau_{PC}}/{\left( \tau_{tot}  / m_{tot}\right)}$
+            \item[]\Comment{Update the maximal relevant value of $m(\cdot)$}
+            \State $\y_{train} \gets \argmax\left\{ f_{acq}(\y_i-\bar{\y}; m_{\max}): \y_i \in (W\setminus Y_{eval}),  \right\}$
+            \item[]\Comment{New train point}
+            \State $Y_{eval} \gets Y_{eval} \cup \{\y_{train}\}$
+            \State $\tau_{\y_{train}}, m_{\y_{train}} \gets GMRES(\mathbb{A}(\bar{\y})^{-1}\mathbb{A}(\y_{train})=\mathbb{A}(\bar{\y})^{-1}b)$
+            \State $\alpha \gets (\y_{train}-\bar{\y}, g^{-1}\left(m_{\y_{train}}\right))$
+            \Comment{Add training data to GP}
+            \State $SP \gets SP \cup \{SP(g\left(\mathbb{E}\left[  \alpha  \right]\right))\}$
+            \Comment{Compute disagreement ratio}
+            \State $\tau_{tot}\gets \tau_{tot}+\tau_{\y_{\min}}$
+            \Comment{Bookkeeping}
+            \State $iter_{tot} \gets m_{tot}+m_{\y_{\min}}$
+        \EndWhile
+        \item[]\\
+        \Return $Y_{eval}, g\left(\mathbb{E}\left[  \alpha(\cdot)  \right]\right), {\tau_{PC}}/{\left(\tau_{tot}  / m_{tot}\right)}$
+    \end{algorithmic}
+\end{algorithm}
+
+With this approximation $m(\cdot)$ satisfying Assumption~\ref{ass:shift_invariant}, we can use Algorithm~\ref{alg:location-allocation} to locate the preconditioner locations for the remaining parameter locations.
+Since a mean-based preconditioner was placed during the Gray-box GPR training, we pass this information on to the location-allocation procedure.
+Specifically, we run Algorithm~\ref{alg:location-allocation} with $W=W\setminus\left\{ Y_{eval} \right\}$, $N_{ratio}=m_{\max}$ for $Y_{eval}$ and $m_{\max}$ coming from Algorithm~\ref{alg:gray-box-gpr} to discard the already evaluated preconditioners, and the mean-based preconditioner $pc_{fixed}=\{\bar{\y}\}$.
+
+\begin{remark}[Parallel training]
+    Instead of our sequential training approach, parallel approaches could be explored.
+    See, for example,~\cite{ginsbourger2010,snoek2012}.
+\end{remark}

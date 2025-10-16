@@ -1,0 +1,112 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{customcolors}[2023/07/20 - package for paper]
+
+\RequirePackage{imakeidx}
+\RequirePackage{xstring}
+\RequirePackage{xcolor}
+\RequirePackage{amsmath}
+
+\definecolor{color_ddrr}{HTML}{990000}
+\definecolor{color_drr}{HTML}{cc0000}
+\definecolor{color_rr}{HTML}{ff0000}
+\definecolor{color_lrr}{HTML}{ff3333}
+\definecolor{color_llrr}{HTML}{ff6666}
+\definecolor{color_ddrrg}{HTML}{994c00}
+\definecolor{color_drrg}{HTML}{cc6600}
+\definecolor{color_rrg}{HTML}{ff7f00}
+\definecolor{color_lrrg}{HTML}{ff7f33}
+\definecolor{color_llrrg}{HTML}{ff7f66}
+\definecolor{color_ddrrgg}{HTML}{999900}
+\definecolor{color_drrgg}{HTML}{cccc00}
+\definecolor{color_rrgg}{HTML}{ffff00}
+\definecolor{color_lrrgg}{HTML}{ffff33}
+\definecolor{color_llrrgg}{HTML}{ffff66}
+\definecolor{color_ddrgg}{HTML}{4c9900}
+\definecolor{color_drgg}{HTML}{66cc00}
+\definecolor{color_rgg}{HTML}{7fff00}
+\definecolor{color_lrgg}{HTML}{7fff33}
+\definecolor{color_llrgg}{HTML}{7fff66}
+\definecolor{color_ddgg}{HTML}{009900}
+\definecolor{color_dgg}{HTML}{00cc00}
+\definecolor{color_gg}{HTML}{00ff00}
+\definecolor{color_lgg}{HTML}{33ff33}
+\definecolor{color_llgg}{HTML}{66ff66}
+\definecolor{color_ddggb}{HTML}{00994c}
+\definecolor{color_dggb}{HTML}{00cc66}
+\definecolor{color_ggb}{HTML}{00ff7f}
+\definecolor{color_lggb}{HTML}{33ff7f}
+\definecolor{color_llggb}{HTML}{66ff7f}
+\definecolor{color_ddggbb}{HTML}{009999}
+\definecolor{color_dggbb}{HTML}{00cccc}
+\definecolor{color_ggbb}{HTML}{00ffff}
+\definecolor{color_lggbb}{HTML}{33ffff}
+\definecolor{color_llggbb}{HTML}{66ffff}
+\definecolor{color_ddgbb}{HTML}{004c99}
+\definecolor{color_dgbb}{HTML}{0066cc}
+\definecolor{color_gbb}{HTML}{007fff}
+\definecolor{color_lgbb}{HTML}{337fff}
+\definecolor{color_llgbb}{HTML}{667fff}
+\definecolor{color_ddbb}{HTML}{000099}
+\definecolor{color_dbb}{HTML}{0000cc}
+\definecolor{color_bb}{HTML}{0000ff}
+\definecolor{color_lbb}{HTML}{3333ff}
+\definecolor{color_llbb}{HTML}{6666ff}
+\definecolor{color_ddrbb}{HTML}{4c0099}
+\definecolor{color_drbb}{HTML}{6600cc}
+\definecolor{color_rbb}{HTML}{7f00ff}
+\definecolor{color_lrbb}{HTML}{7f33ff}
+\definecolor{color_llrbb}{HTML}{7f66ff}
+\definecolor{color_ddrrbb}{HTML}{990099}
+\definecolor{color_drrbb}{HTML}{cc00cc}
+\definecolor{color_rrbb}{HTML}{ff00ff}
+\definecolor{color_lrrbb}{HTML}{ff33ff}
+\definecolor{color_llrrbb}{HTML}{ff66ff}
+\definecolor{color_ddrrb}{HTML}{99004c}
+\definecolor{color_drrb}{HTML}{cc0066}
+\definecolor{color_rrb}{HTML}{ff007f}
+\definecolor{color_lrrb}{HTML}{ff337f}
+\definecolor{color_llrrb}{HTML}{ff667f}
+
+\definecolor{viridis_1}{HTML}{fde725}
+\definecolor{viridis_2}{HTML}{7ad151}
+\definecolor{viridis_3}{HTML}{22a884}
+\definecolor{viridis_4}{HTML}{2a788e}
+\definecolor{viridis_5}{HTML}{414487}
+\definecolor{viridis_6}{HTML}{440154}
+
+\newcommand{\ylab}{$\|t_\nu\|_{H_0^1}$}
+
+\pgfplotsset{ every axis/.append style={
+			thick
+    	}}
+
+\newcommand{\figs}[3]{%
+	\addplot+[solid,color=#2,mark=.,very thick] table [x=X, y=Y, col sep=comma] {#1.csv};
+	\addlegendentry{#3}
+}
+
+\newcommand{\fit}[2]{
+	\addplot[color=#2,raw gnuplot, mark=., dashed] gnuplot {
+		round(x) = sprintf(" \%6.3f", x);
+		set datafile separator ',';
+		set key autotitle columnhead;
+		f(x) = a*x+b;
+		fit f(x) "../#1_withoutfirst.csv" using (log($1)):(log($2)) via a,b;
+		set samples 2;
+		set print "../#1_params.dat";
+		print a, b, round(a);
+		plot [x=1:2000] exp(f(log(x)));
+	};
+%	\addplot {plot [x=1:2000] 1;}
+	\addlegendentry[/pgf/number format/precision=3]{
+		\pgfplotstableread{#1_params.dat}\parameters
+		% Open the file Gnuplot wrote
+		\pgfplotstablegetelem{0}{2}\of\parameters \pgfmathsetmacro\parama{\pgfplotsretval} % Get first element, save into \parama
+		$\text{rate}=$\parama
+	}
+}
+
+\newcommand{\plotfit}[3]{
+	\figs{#1}{#2}{#3}
+	\fit{#1}{#2}
+}

@@ -1,0 +1,17 @@
+Let $\{\mathbb{A}(\y_i)\}_{\y_i \in W}$ be a family of parameterized matrices with parameter vectors collected in $W=\{\y_i\}_{i\in I}$ with $\y_i\in Y$, for some finite index set $I$ and $Y=\prod_{j=1}^N Y_j$ with $Y_j$ a bounded interval in $\mathbb{R}$.
+Our goal is to solve the system $\mathbb{A}(\y_i)\u(\y_i)=b$ for all parameter vectors $\y_i\in W$.
+We turn our attention to preconditioned Krylov methods and consider the preconditioned system to find the high-dimensional vector $\u(\yi)$ for $\yi\in W$:
+\begin{equation}
+    \mathbb{P}(\yi)\mathbb{A}(\yi)\u(\yi)=\mathbb{P}(\yi)b.\label{eq:preconditionedsystem}
+\end{equation}
+We do not specify the exact choice of the preconditioner for now, but we will be more explicit in Section~\ref{sec:estimating-m-for-gmres}.
+
+In our approach, we place $N_{pc}$ preconditioners $\mathbb{P}\left(\hat{\y}_k\right)$ with $\yi \in Y$.
+These preconditioner locations form a partition $W_k$ of $W$, each with a selected preconditioner location $\yh_k$.
+Then, we set $\mathbb{P}(\yi) = \mathbb{P}(\yh_k)$ for $\yi\in W_k$.
+
+We note that the parameter space $Y$ may be isotropic or anisotropic, implying that the effect of different parameter dimensions on the conditioning of the system may not be equal.
+Moreover, we will consider left preconditioning.
+Right- and split methods can be treated similarly.
+
+To find a good preconditioning strategy, we will place several preconditioners in the parameter space in the next section.

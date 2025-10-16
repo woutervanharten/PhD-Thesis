@@ -1,0 +1,156 @@
+\newcommand{\anorm}[1]{\|#1\|_{{V}}}
+\newcommand{\amin}{a_{\min}}
+\newcommand{\ch}[2]{\binom{#1}{#2}}
+\newcommand{\Avar}[1]{\partial^{\mu-\nu}{A}(\bm{#1})}
+\newcommand{\Ay}{\Avar{y}}
+\newcommand{\A}{\Avar{0}}
+\newcommand{\Ab}{3\sqrt{2}^{\abs{\mu}} ((\|\D \Phi_j \|_{2,2})_{j \geq 1}) ^{\mu}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\x}{{{\bm{x}}}}
+\newcommand{\xx}{{x}_1}
+\newcommand{\xy}{{x}_2}
+%\renewcommand{\r}{|\x|}
+\renewcommand{\a}{\frac{r_0^-}{4}}
+\newcommand{\nui}{{\nu^{(1)}}}
+\newcommand{\nuii}{{\nu^{(2)}}}
+\newcommand{\nuiii}{{\nu^{(3)}}}
+\newcommand{\nuiv}{{\nu^{(4)}}}
+
+% Constants
+\newcommand{\Ca}{{{C}_a}}
+\newcommand{\Cf}{{{C}_f}}
+\newcommand{\Cat}{{\tilde{C}_a}}
+\newcommand{\Cft}{{\tilde{C}_f}}
+\newcommand{\Cg}{{{C}_g}}
+\newcommand{\Cmax}{{{C}_{max}}}
+\newcommand{\Cpc}{C_p}
+\newcommand{\Csigma}{C_{\sigma}}
+\newcommand{\Darea}{{|{D}|}}
+\newcommand{\Kb}{\Kt}
+\newcommand{\Kbs}{\frac{\Kb}{\delta}}
+\newcommand{\Kc}{\Kt}
+\newcommand{\Kt}{K_T}
+\newcommand{\uparamdomain}{\mathrm{u}}
+
+\newcommand{\brhosum}{\sup_{\x\in D}\sum_{j \geq 1} \rho_j b_j\left(\x \right)}
+
+
+\renewcommand{\th}{\theta_0}
+\newcommand{\dth}{\mathop{}\!\mathrm{d} \th}
+\newcommand{\dtha}{\mathop{}\!\mathrm{d} \tha}
+\newcommand{\dthb}{\mathop{}\!\mathrm{d} \thb}
+\newcommand{\tha}{\hat{\theta}_0}
+\newcommand{\thb}{\tilde{\theta}_0}
+\newcommand{\Gdn}{\mathop{}\!\nabla_{\x_0}G\cdot \hat{n}}
+\newcommand{\rj}{\rho_\lambda}
+\newcommand{\chibar}{\bar{\chi}}
+\newcommand{\chibarone}{\chibar_1}
+\newcommand{\chibartwo}{\chibar_2}
+
+
+% Theorem, proof, and lemma's
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\renewcommand{\d}{\mathrm{d}}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\esssup}{ess\,sup}
+\DeclareMathOperator*{\dist}{dist}
+\DeclareMathOperator*{\diam}{diam}
+
+\newcommand{\leqtop}[1]{\stackrel{\mathclap{ \mbox{\footnotesize #1}}}{\leq}}
+\newcommand{\leqcs}{\leqtop{C.S.}}
+\newcommand{\leqpc}{\leqtop{P.c.}}
+
+\newcommand{\deltatilde}{{\tilde{\delta}}}
+
+\newcommand{\ls}[1]{{{#1}}}
+\newcommand{\lsfix}[1]{{{#1}}}
+
+\newif\ifgraphs
+\graphstrue
+
+\mathtoolsset{showonlyrefs}
+
+
+\numberwithin{equation}{chapter}
+\numberwithin{figure}{chapter}
+
+\newcommand{\rev}[1]{{#1}}
+\newenvironment{revenv}{}{\ignorespacesafterend}
+\newenvironment{newenv}{}{\ignorespacesafterend}
+
+\newcommand{\y}{{\bm{y}}}
+\newcommand{\ys}{{\hat{\bm{y}}_\ast}}
+\newcommand{\yb}{\bar{\bm{y}}}
+\newcommand{\yh}{\hat{\bm{y}}}
+\newcommand{\yhk}{\hat{\bm{y}_k}}
+\newcommand{\yi}{{\bm{y}_i}}
+\newcommand{\yj}{{\bm{y}_j}}
+\newcommand{\Dy}{\mathop{}{D}(\y)}
+
+\newcommand{\Vlim}{\mathbb{V}_{limit}}
+\newcommand{\dto}{\xrightarrow{d}}
+\newcommand{\eq}{=}
+
+\renewcommand{\deg}{~\degree\text{C}}
+
+\renewcommand{\u}{{\bm{u}}}
+
+\newcommand{\dx}{\mathrm{d}\x}
+\newcommand{\dy}{\mathrm{d}\y}
+\newcommand{\D}{\mathop{}\!\mathrm{D}_x}
+
+\newcommand{\id}{\text{Id}}
+
+\newcommand{\reprintpermissionfootnote}{\small\textsuperscript{Reprinted from~\cite{vanharten2024}.}}
+
+
+
+
+\algnewcommand{\algorithmicand}{\textbf{ and }}
+\algnewcommand{\algorithmicor}{\textbf{ or }}
+\algnewcommand{\OR}{\algorithmicor}
+\algnewcommand{\AND}{\algorithmicand}
+\algnewcommand{\var}{\texttt}
+
+
+\tikzset{
+    yn/.style={draw,thick,rounded corners,fill=yellow!20,inner sep=.3cm},
+    bn/.style={draw,thick,rounded corners,fill=blue!05,inner sep=.3cm},
+    on/.style={draw,thick,rounded corners,fill=orange!20,inner sep=.3cm},
+    rn/.style={draw,thick,rounded corners,fill=red!20,inner sep=.3cm},
+    greenn/.style={draw,thick,rounded corners,fill=green!20,inner sep=.3cm},
+    grayn/.style={draw,thick,rounded corners,fill=gray!20,inner sep=.3cm},
+    to/.style={
+        ->,>=stealth',shorten >=1pt,semithick,font=\sffamily\footnotesize
+    },
+    from/.style={
+        <-,>=stealth',shorten >=1pt,semithick,font=\sffamily\footnotesize
+    },
+    tofrom/.style={
+        <->,>=stealth',shorten >=1pt,semithick,font=\sffamily\footnotesize
+    },
+    every node/.style={align=center},
+    squig/.style={->,line join=round,decorate, decoration={zigzag,
+    segment length=8,amplitude=2,post=lineto,post length=2pt}}
+}
+
+\setlength{\headheight}{14pt}
+
+\hyphenation{Dau-be-chies Kar-hun-en Helm-Holtz sum-ma-bil-i-ty in-de-pen-dent Stech-kin}
+
+\fancypagestyle{plain}{
+    \fancyhf{} % clear header/footer
+    \renewcommand{\headrulewidth}{0pt} % optional: remove header line
+    \renewcommand{\footrulewidth}{0pt} % optional: remove footer line
+}

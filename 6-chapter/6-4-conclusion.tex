@@ -1,0 +1,37 @@
+In this chapter, we have showcased the algorithms developed in Chapter~\ref{ch:distributed-preconditioning} by considering the Helmholtz equation posed on a parametric domain as introduced in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains} and an affine expansion of the heterogeneous coefficients.
+We have shown how to find a good mean for the Gaussian process prior, leveraging well-known estimates for the Helmholtz equation.
+Moreover, to make the algorithm scalable to higher dimensions of the parameter space, we have extracted values for the anisotropy weights in terms of the model problem, making them analytically computable.
+
+The numerical experiments that followed show that the algorithms reduce the computational burden up to one order of magnitude.
+For the parametric domain problem, this improvement persists when changing the frequency, the significance of the shape variations, the parameter anisotropy, and other modeling parameters.
+
+Due to the \textit{concentration of measure} effect in high dimensions, we have observed that our approach will not yield significant improvements for high-dimensional isotropic parameter spaces.
+We have illustrated this numerically by applying the algorithm to the much simpler affine expansion with equally important parameter space dimensions.
+In this case, the optimal number of preconditioners is either one (mean-based preconditioning) or maximal, where a preconditioner is computed at each parameter location, as discussed in Remark~\ref{rem:high-dimensional-parameter-space}.
+Adaptive methods can still determine which case is applicable, ensuring that the correct extreme is identified.
+
+Moreover, we have compared the \textit{performance of GPR training} for different kernels.
+For the univariate kernels proposed in Chapter~\ref{ch:distributed-preconditioning}, we have observed good convergence results.
+Compared to the other kernels considered, this has shown that richer kernels allow for lower modeling errors but require more training due to the curse of dimensionality.
+Hence, we confirm that, as anticipated in Section~\ref{sec:conclusion-precond-placement}, to find large improvements in the total computational burden, a `good' rather than the most accurate surrogate is sufficient.
+
+When monitoring the \textit{stabilizing predictions} stopping criterion, we observed that it stops the training process before the saturation point of the training process.
+The 1$\%$ stopping criterion has been chosen according to the original paper proposing the method~\cite{pullar-strecker2024}, but higher values might be suitable as well.
+This will lower training time at the cost of lower surrogate accuracy, therefore impacting the final strategy.
+
+Moreover, we have tested the selection of the number of preconditioners to place in the parameter domain.
+There, we have seen that the selected value for $N_{pc}$ is close to the optimal value, but not exactly.
+Nevertheless, we have seen that the optimization problem of placing the preconditioners exhibits many local minima, mitigating the need for more precise methods.
+
+Further improvements might be possible by considering different preconditioners instead of the full LU presented in this thesis.
+However, there is a balance to take into account: when reusing the preconditioners, we want to reuse as much information as possible, which is maximized for the full inverse matrix.
+
+Another direction is to test the algorithms with a broader class of partial differential equations.
+For example, elliptic equations with short correlation lengths or time-dependent equations could be of interest from both a numerical and an analytical perspective.
+
+Moreover, to better understand the impact of the assumptions made, one could construct explicit examples where important assumptions are violated.
+For example, it would be very interesting to construct explicit examples where the parameter dependence does not satisfy the symmetry assumption or the shift invariance of the number of iterations.
+These studies would further improve understanding of the sensitivity of the algorithms to these assumptions.
+
+Finally, the numerical performance of more general surrogates could further reduce computation times, especially in high-dimensional settings.
+This would ease the analytical burden of applying the algorithms to a new problem because less analytical rigor would be needed to formulate a good surrogate.

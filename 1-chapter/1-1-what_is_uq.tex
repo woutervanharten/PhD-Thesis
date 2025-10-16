@@ -1,0 +1,49 @@
+Uncertainty is a part of almost everything we do and experience.
+It shows up in mundane ways, such as not knowing when a parcel will arrive or how high the next electricity bill will be.
+However, it also plays a role in much higher-stakes situations, such as predicting the effects of climate change or ensuring the safety of a nuclear reactor.
+Uncertainty is not always a problem, as we often seek it out in entertainment when anticipating the end of a movie or playing the lottery.
+However, to make informed decisions in situations where uncertainty matters, one must understand the origins and effects of these uncertainties.
+Therefore, the field of \emph{Uncertainty Quantification} (\emph{UQ}) studies the interplay between uncertainty and computational models.
+
+On the one hand, we study the effects of uncertainty in \emph{input parameters} of computational models on their output.
+For example, we might not know exactly how much rain will fall in the upcoming days, but we want to know the probability of a devastating flood.
+Alternatively, we have an appointment at 09:00 in the morning, but we are unsure how much traffic there will be on our way to the office.
+In these cases, we understand the underlying uncertainty, but we want to know the effect of this uncertainty on some \emph{Quantity of Interest} (QoI).
+In the mentioned examples, the quantities of interest are the flood probability and the expected arrival time.
+
+On the other hand, we may have uncertainty in latent variables that we cannot observe directly; we can only observe a consequence.
+For example, we observe a novel disease spreading without knowing its infectivity or resistance against common countermeasures.
+As we have experienced in the early '20s, it is critical to quantify these uncertainties using techniques from \emph{inverse uncertainty quantification} and \emph{filtering}.
+
+Both aspects have a basic element in common: the computational (forward) model, which maps the input parameters to a quantity of interest or an observable.
+For the forward UQ problem, the workflow is shown schematically in Figure~\ref{fig:uq_workflow_tikz}.
+In the morning traffic example, $Y$ represents the traffic density on the road.
+The forward model $\mathfrak{f}:Y\to X$ maps the traffic density to an arrival time, and $QoI(X) = \mathbb{E}\left[ X \right]$ computes the average arrival time.
+In the flooding example, on the other hand, $Y$ could represent the rainfall, the geometry of the river bed, or other unknowns.
+The forward model $\mathfrak{f}:Y\to X$ then computes the expected water height at a location of interest.
+The quantity of interest would be $QoI(X) = \mathbb{P}\left[ X > \text{dike height} \right]$, the probability that the water will flow over the dike.
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \node[bn] at (0, 0) (a) {\begin{minipage}{3cm}\centering Uncertain input parameters \\$\mathcal{Y}$ \end{minipage}};
+        \node[on] at (4, 0) (b) {\begin{minipage}{3cm}
+                                     \centering
+                                     Computational model\\
+                                     $X=\mathfrak{f}(\mathcal{Y})$
+        \end{minipage}};
+        \node[rn] at (8, 0) (c) {\begin{minipage}{3cm}
+                                     \centering
+                                     Quantity of Interest\\
+                                     $QoI(X)$
+        \end{minipage}};
+        \draw[to] (a) -- (b);
+        \draw[to] (b) -- (c);
+    \end{tikzpicture}
+    \caption{Schematic representation of the UQ workflow.}
+    \label{fig:uq_workflow_tikz}
+\end{figure}
+
+Many difficulties in this computation arise whenever the number of input uncertainties is large or possibly infinite, as in the case of unknown geometries or other spatially dependent parameters.
+Difficulties arising from large parameter dimensions are collectively referred to as the \emph{curse of dimensionality} and pose a significant computational challenge.
+Moreover, solving the forward model is often rather expensive, as we will discuss in this thesis.

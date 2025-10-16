@@ -1,0 +1,96 @@
+Most of the UQ methods presented contain a computational step in which multiple instances of the forward model are evaluated.
+To improve efficiency, one can act in some key areas:
+\begin{enumerate}[a)]
+    \item The efficiency in parameter space evaluations,
+    \item The efficiency of the forward model evaluations.
+\end{enumerate}
+In the first part of this thesis, we will discuss improvements in the parameter space evaluations by discussing polynomial surrogate models.
+In the second part of this thesis, we will look at numerical methods to improve the evaluation of the forward model using distributed preconditioning.
+Below, we will outline both parts in more detail.
+
+In both parts, we test our methods numerically by considering partial differential equations posed on parametric domains.
+Therefore, we will start the thesis with a thorough discussion of partial differential equations on parameterized domains in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}, presenting the problem statement, treatment using a parameter-dependent mapping to a reference domain, and finally connecting it to the setting of the parameterized heterogeneous coefficients outlined in Section~\ref{sec:uq-for-pde-problems}.
+
+\subsubsection{Polynomial surrogates}
+One method of reducing the computational cost is by employing a surrogate model, a concept introduced in Section~\ref{subsec:surrogate-modeling}: we construct an approximant for our forward model, which is cheap to compute but introduces an approximation error.
+One such surrogate model is a polynomial surrogate.
+In Chapters~\ref{ch:exploiting-locality-in-polynomial-approximations} and~\ref{ch:locality-in-parameterized-domains}, we focus on a Taylor-like expansion in terms of $\y$:
+\begin{equation}
+{u}(\y,\cdot) = \sum_{\mu\in\mathcal{F}} t_\mu(\cdot) \y^\mu,\label{eq:taylordefint}
+\end{equation}
+where $t_\mu \in V\coloneqq H_0^1(D)$ are the Taylor coefficients, and $D$ is, e.g., as in~\eqref{eq:parameterized_poisson_pde} defined by
+\begin{equation*}
+    t_\mu = \frac{1}{\mu!}\partial^\mu {u}(\bm{0}).
+\end{equation*}
+Moreover, $\mathcal{F}$ is the set of all finitely supported multi-indices:
+\begin{align*}
+    \mathcal{F}=\{\mu=(\mu_1,\mu_2,\mu_3,\ldots), \mu_i \in \mathbb{N}_0, \text{supp}(\mu) < \infty \},
+\end{align*}
+with $\mathbb{N}_0\coloneqq\mathbb{N}\cup \left\{0\right\}$.
+The exponent $\y^\mu$ is taken elementwise:
+\begin{equation*}
+    \y^{\mu} = \prod_{i\geq 1} y_i^{\mu_i}.
+\end{equation*}
+Naturally, we are interested in the convergence properties of this expansion, as faster convergence requires fewer coefficients to achieve a fixed accuracy.
+
+In the first part of this thesis, we will investigate how the choice of parameterization for the uncertain input affects the convergence properties of~\eqref{eq:taylordefint}.
+Theorem~\ref{thm:l2summability} in Chapter~\ref{ch:exploiting-locality-in-polynomial-approximations} shows that localized summability properties of the basis expansion improve the convergence rate of the Taylor approximation by half an order.
+In particular, we go beyond the state of the art~\cite{bachmayr2017a,bachmayr2017b} and allow the PDE coefficients to depend smoothly, but highly nonlinearly, on the parameter.
+This nonlinear dependence is particularly relevant for the parameterized domain setting we will outline in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}.
+As discussed in a broader context in Chapter~\ref{ch:exploiting-locality-in-polynomial-approximations}, current approaches for coefficients that depend nonlinearly on the parameter are based on a smooth extension into the complex plane~\cite{chkifa2015,hiptmair2018}.
+These works rely on global properties of the parameterization~\cite{babuska2014,chkifa2015}, while we rely on pointwise properties if the parameterization, in the spirit of~\cite{bachmayr2017a,bachmayr2017b,dung2022,zech2018}.
+
+In Chapter~\ref{ch:locality-in-parameterized-domains}, we will put these theoretical improvements to the test by applying them to the model problem we will introduce in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}.
+Both Chapters~\ref{ch:exploiting-locality-in-polynomial-approximations} and~\ref{ch:locality-in-parameterized-domains} are based on~\cite{vanharten2024}.
+
+\subsubsection{Distributed preconditioning}
+For PDEs, the forward map often involves solving many large, parameterized linear systems of the form
+\begin{equation*}
+    A(\yi)\u(\yi)=b,
+\end{equation*}
+Where the set of nodes $\yi\in Y$ could be for randomly chosen parameter values originating from the Monte Carlo method or deterministic values derived from, e.g., a stochastic collocation approach~\cite{xiu2015}.
+These linear systems could stem, for example, from a finite element discretization, as we have discussed in Section~\ref{sec:uq-for-pde-problems}.
+In the second part of this thesis, we will consider parameterized systems of linear equations and efficient methods for solving them.
+
+Solving these linear systems can be computationally intensive due to the difficulty of the problem (the bad \emph{conditioning} of the problem~\cite{golub2007}).
+To reduce the computational burden, we might employ a so-called \emph{preconditioner}, which is, in very rough terms, a matrix close to the inverse of $A(\yi)$~\cite{wathen2015}.
+Computing such a preconditioner requires some computational resources.
+Therefore, one might compute one or a few of these preconditioners and use them multiple times for different parameter values to reduce the time spent computing preconditioners~\cite[Section~4.7]{venkovic2024,pembery2020}.
+
+In Chapter~\ref{ch:distributed-preconditioning}, we propose a novel two-stage approach by first using a gray-box Gaussian Process Regression (gray-box GPR) approach to learn the effect of the preconditioner on the computational load and then placing multiple preconditioners throughout the parameter domain such that total computation time is reduced significantly.
+This approach goes beyond the current state of the art of, for example, mean-based preconditioning, which is not always effective due to, for example, high sensitivity of the linear system to the parameter.
+Moreover, by considering a training phase, we can assess the total cost more accurately than when placing the preconditioners a priori using, for example, tensorized approaches~\cite[Section~4.3]{pembery2020} or Voronoi-based strategies based on a priori bounds~\cite{venkovic2024}.
+
+In Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, we apply the methods presented to the Helmholtz scattering problem discussed in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}.
+Both Chapters~\ref{ch:distributed-preconditioning} and~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer} are based on~\cite{vanharten2025a}.
+
+Figure~\ref{fig:chapters} summarizes the structure of this thesis.
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[
+        every node/.style={draw, shape=ellipse, minimum width=1.5cm, minimum height=1cm},
+        >=Stealth
+    ]
+
+        % Nodes
+        \node (ch1) at (0,6) {Chapter 1};
+        \node (ch2) at (0,3) {Chapter 2};
+        \node (ch3) at (-3,4.5) {Chapter 3};
+        \node (ch4) at (-3,1.5) {Chapter 4};
+        \node (ch5) at (3,4.5) {Chapter 5};
+        \node (ch6) at (3,1.5) {Chapter 6};
+
+
+        % Edges
+        \draw[->] (ch1) -- (ch2);
+        \draw[->] (ch1) -- (ch3);
+        \draw[->] (ch1) -- (ch5);
+        \draw[->] (ch3) -- (ch4);
+        \draw[->] (ch2) -- (ch4);
+        \draw[->] (ch2) -- (ch6);
+        \draw[->] (ch5) -- (ch6);
+
+    \end{tikzpicture}
+    \caption{Dependency graph of this thesis.}
+    \label{fig:chapters}
+\end{figure}

@@ -1,0 +1,59 @@
+In many aspects of our daily life, we encounter uncertainty.
+We are, for example, interested in the weather predictions for next weekend, but such a prediction is not worth much if we do not take the associated uncertainty into account.
+This problem is one of the central issues in the field of \emph{uncertainty quantification}, where we seek answers to the question:
+\begin{center}
+    \textit{How does uncertainty propagate through a mathematical model?}
+\end{center}
+In the case of weather predictions, this input uncertainty could be the uncertainty in the current temperature, air pressure, or humidity in the atmosphere.
+We then want to compute how this input uncertainty propagates through a mathematical model, in the example of a weather forecast, a weather prediction model.
+
+Computing the propagation of uncertainty can be very costly, especially in cases where there are many, or possibly infinitely many, uncertain input parameters, or when evaluating the model is expensive, thereby increasing the computational cost.
+In this thesis, we explore numerical methods for propagating uncertainty through high-dimensional and computationally intensive models.
+That is, we work on efficient methods to perform these computations, limiting the computational resources needed.
+Reducing computational requirements can lead to cost and power savings, making space for more precise models and thereby improving the accuracy of our computations.
+
+The first chapter of this thesis describes the methods one can use to address the computational burden of \emph{forward uncertainty propagation}.
+Out of these methods, we will further discuss two of them in this thesis.
+In the second chapter, we introduce partial differential equations posed on parameterized domains.
+In later chapters, we will use this example to showcase the efficacy of our methods.
+
+\subsection*{Taylor surrogates}\label{subsec:taylor-surrogates}
+A common approach is to construct a \emph{surrogate model} of the mathematical model.
+This surrogate, or approximation, should approximate the mathematical model fairly well but take significantly less time to evaluate.
+The surrogate model we study is the well-known Taylor expansion with respect to the parameter, which expresses the forward map in terms of its derivatives, truncated when the surrogate is accurate enough.
+However, although the Taylor surrogate is fast to evaluate, it remains to be computed in an offline preprocessing step.
+Hence, we are interested in the convergence properties of the Taylor surrogate, because, if it converges more quickly, we need to compute fewer terms, thereby limiting the computational burden.
+
+In Chapter~\ref{ch:exploiting-locality-in-polynomial-approximations}, we study the convergence rate of the Taylor surrogate for the Poisson equation, where the heterogeneous coefficient is nonlinearly dependent on the parameter.
+For this case, Theorem~\ref{thm:l2summability} shows that the convergence rate of the Taylor surrogate is dependent on the expansion of the parameterized coefficient.
+More specifically, we show that using localized basis functions in the expansion improves the convergence rate by 1/2.
+This implies that when one uses, for example, wavelet expansions instead of a more classical Fourier expansion with the same asymptotic decay, the convergence rate improves by half an order.
+
+Following the theoretical analysis in Chapter~\ref{ch:exploiting-locality-in-polynomial-approximations}, we apply this theory in Chapter~\ref{ch:locality-in-parameterized-domains}.
+As an explicit example, we consider a Poisson equation posed on a parameterized domain, which naturally gives rise to an infinite-dimensional parameter space.
+Using a mapping technique, we map the parameterized domain back to a reference domain, leading to a coefficient depending nonlinearly on the parameter.
+We consider two mapping approaches: an explicit radial mapping and a harmonic mapping, defined implicitly through an auxiliary partial differential equation.
+
+In these numerical examples, we compute Taylor expansions for this parameterized domain problem and observe that the theoretical improvements of Theorem~\ref{thm:l2summability} materialize in practice.
+Moreover, we investigate the effects of different mapping techniques on the convergence rate and the constants involved.
+From this, we learn that, although the explicit radial mapping has convenient analytical properties that simplify the convergence proof, the harmonic mapping has superior performance due to the smoothing properties of the mapping.
+
+\subsection*{Distributed preconditioning}\label{subsec:distributed-preconditioning}
+On the other hand, many techniques in uncertainty quantification require solving many linear systems, which are often parameterized to model the uncertain input variables.
+These linear systems arise, for example, when modeling physical systems that are described by partial differential equations, due to the discretization with, for example, boundary or finite element methods.
+When these linear systems become large or poorly conditioned, solving them directly becomes intractable, and iterative solvers must be employed.
+
+To improve the convergence of these iterative solvers, one generally employs a preconditioner, which, in rough terms, prescribes a good `initial guess' for the solution of the linear system.
+However, we have to spend computational resources to compute this preconditioner.
+When solving many linear systems, one may want to reuse this preconditioner, thereby limiting the total time spent computing preconditioners.
+
+In Chapter~\ref{ch:distributed-preconditioning}, we explore this topic by algorithmically placing preconditioners in the parameter domain.
+We propose a two-step approach:
+\begin{enumerate}
+    \item we first \emph{learn a surrogate model} that predicts the number of iterations required by the iterative solver to solve a given linear system with a preconditioner;
+    \item we use this surrogate in a \emph{location-allocation} approach to determine how many and at which parameter locations preconditioners need to be computed to minimize the total computation time.
+\end{enumerate}
+
+Finally, we put the outlined algorithm to the test in Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, where we consider Helmholtz scattering against a parameterized scatterer.
+As the Helmholtz equation at high frequencies results in badly conditioned matrices, algorithmic preconditioner placement is well-suited to decrease the total computational load.
+We run numerical experiments in various different parameter dimensions, frequencies, and decay rates for the boundary expansion and realize savings of up to 90\% compared to more conventional methods.

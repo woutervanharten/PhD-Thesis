@@ -1,0 +1,435 @@
+\label{sec:modelproblem}
+To show the relevance of Theorem~\ref{thm:lpsummability}, we consider the Poisson equation posed on the interior parameterized domain as introduced in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}, with the domain mappings introduced in Sections~\ref{subsec:mollifier-mapping} and~\ref{subsec:harmonic-mapping}.
+We thus focus on approximating the map $\y\to u(\y)$ from $Y=[-1,1]^\mathbb{N}$ to $V=H_0^1(D)$, where $u(\y)$ is the solution to equations~\eqref{eq:transformedvarformpois} --~\eqref{eq:hatfdefpois}.
+
+To efficiently compute evaluations of ${u}(\y)$, we are interested in a polynomial approximation for the mapping $\y \mapsto {u}(\y)$ from $Y$ to $V$.
+The holomorphy of an extension of the map $\y \mapsto {u}(\y)$  from $Y$ to $V$ to complex poly-ellipses, under Assumptions~\ref{ass:analytic} and~\ref{ass:phijpois}, was shown in~\cite{chkifa2015,cohen2018,hiptmair2018}.
+Therefore, we can expand the solution to~\eqref{eq:transformedvarformpois} in terms of a Taylor series with respect to the parameter~\eqref{eq:tayloreq}.
+We will investigate the summability properties of the Taylor coefficients by employing Theorem~\ref{thm:lpsummability} in the following section.
+
+\subsection{Setup for Theorem~\ref{thm:lpsummability}}
+\label{subsec:verificationthm}
+By Assumptions~\ref{ass:analytic},~\ref{ass:phijpois}, and Lemma~\ref{lem:courantfish2pois}, Assumption~\ref{ass:afanalytic} is satisfied.
+To apply Theorem~\ref{thm:lpsummability}, we then need a sequence $(b_j(\x))_{j \geq 1}$ that verifies its assumptions.
+In this section, we will first show   \textsl{pointwise} bounds on $|{A}(\bm{0}; \x)|_{2,2}$ and $|F(\bm{0}; \x)|$ from~\eqref{eq:hatAdefpois} and~\eqref{eq:hatfdefpois} in terms of $ |\D \Phi_j(\bm{0}; \x) |_{2,2}$ and $ | \Phi_j (\bm{0}; \x)|$, $j\geq 1$, and use these bounds to choose $(b_j(\x))_{j \geq 1}$ appropriately.
+
+We define the following sequences for the bounds on the spectral norms of the total derivatives of $a$ and $f$, making use of the notation introduced at the beginning of Chapter~\ref{ch:exploiting-locality-in-polynomial-approximations}:
+\begin{align*}
+    \Ca(n)\coloneqq\sup_{\x \in \mathcal{D}_H}|\D^n a|_{n,2}, \quad \Cf(n)\coloneqq\sup_{\x \in \mathcal{D}_H}|\D^n f|_{n,2}.
+\end{align*}
+Moreover, we let $\Cat$ and $\Cft$ be the monotonically non-decreasing majorants of $\Ca$ and $\Cf$\rev{,} respectively.
+
+Now, the desired bounds on $|A(\bm{0}; \x)|_{2,2}$ and $|F(\bm{0}; \x)|$ follow from direct computation and are given by the following lemma:
+\begin{lemma}
+    \label{thm:Afbound}
+    For $\y \in Y $, let ${A}(\y)$ and $F(\y)$ be defined by equations~\eqref{eq:hatAdefpois} and~\eqref{eq:hatfdefpois}, respectively, and let Assumption~\ref{ass:analytic} and~\ref{ass:phijpois} hold.
+    Then, for a.e. $\x \in {D}$ and for every $\mu \in \mathcal{F}$, we have the bounds
+    \begin{align*}
+        |\partial^\mu{A}(\bm{0}; \x)|_{2,2} &\leq \Cat(|\mu|)  \sum_{ \nu \leq \mu} \binom{\mu}{\nu} \frac{(|\mu| - |\nu| + 2)!}{2} \nonumber\\
+        &\qquad((|\D \Phi_j(\bm{0}; \x)|_{2,2} )_{j \geq 1})^{\mu - \nu} \sqrt{d}^{\,|\mu - \nu|} ((| \Phi_j(\bm{0}; \x)| )_{j \geq 1})^{ \nu},
+    \end{align*}
+    and
+    \begin{align*}
+        |\partial^\mu F(\bm{0}; \x)| &\leq \Cft(|\mu|)   \sum_{\nu \leq \mu} \binom{\mu}{ \nu } |\nu |!\sqrt{d}^{|\nu |}\\
+        &\qquad\qquad((|\D \Phi_j(\bm{0}; \x)|_{2,2})_{j\geq 1})^\nu   ((|\Phi_j(\bm{0}; \x)|)_{j \geq 1})^{\mu - \nu}.
+    \end{align*}
+\end{lemma}
+
+
+Analogous results to Lemma~\ref{thm:Afbound} can be found, for example, in~\cite{harbrecht2016}, which employs the Faà di Bruno formula.
+However, contrary to these results, we employed a different proof technique, and we only need to evaluate the derivatives at $\y=\bm{0}$, which results in our bounds being slightly sharper than those in~\cite{harbrecht2016}.
+\begin{proof}
+    We expand the derivative  $\partial^{\mu}{A}(\bm{y})$ using the general Leibniz rule and substitute $\y = \bm{0}$ to obtain:
+    \begin{align}
+        |\partial^\mu {A}(\bm{0}) |_{2,2}  &\leq \sum_{\nui+\nuii+\nuiii+\nuiv=\mu} \binom{\mu}{\nu^{(1)},\nu^{(2)},\nu^{(3)}, \nuiv}\,\,\,\, \cdot \nonumber\\
+        &\qquad \qquad\left| \partial^{\nu^{(1)}}\left[ \left( \D \Phi \right)^{-1} (\bm{0})\right]\right|_{2,2} \left|   \partial^{\nu^{(2)}}\left[ \left( \D \Phi \right)^{-\top} (\bm{0})\right]   \right|_{2,2}\cdot\nonumber\\
+        &\qquad \qquad\left|\partial^{\nu^{(3)}}\left[\det\left( \D \Phi \right) (\bm{0})\right]\right|_{2,2} | \partial^{\nuiv}\left[\left( a \circ \Phi \right)(\bm{0}) \right]|.\label{eq:inbetweenbound}
+    \end{align}
+    This leaves us with the task of estimating each norm on the right-hand side of the previous equation.
+
+    First, we tackle $\left| \partial^\mu \left[ \left( \D \Phi \right)^{-1}(\bm{0})\right]\right|_{2,2}$, by computing the derivative explicitly.
+%    We do so instead of employing the Fa\`a di Bruno formula to exploit the affine parameter dependence.
+    We obtain:
+    \begin{align*}
+        \partial^\mu \left[ \left( \D \Phi \right)^{-1}(\bm{y})\right] &= (\D \Phi)^{-1}(\y) \sum_{\xi\in P(\mu)} \prod_{j=1}^{|\mu|}\left[ \D \Phi_{\xi_j} (\D \Phi)^{-1}(\y) \right],
+    \end{align*}
+    where $P(\mu)$ is the set of all possible permutations of the derivatives in $\mu$, each counted with its multiplicity.
+    We can evaluate this at $\bm{y}=\bm{0}$, where $\D\Phi(\bm{0})=I_d$,  to obtain:
+    \begin{align}
+        \left| \partial^\mu \left[ \left( \D \Phi \right)^{-1}(\bm{0})\right]\right|_{2,2} &\leq  \sum_{\xi\in P(\mu)} \prod_{j=1}^{|\mu|} |\D \Phi_{\xi_j} |_{2,2}\\
+        &=  \abs{\mu}! ((|\D \Phi_j |_{2,2})_{j \geq 1}) ^{\mu}.\label{eq:invbound}
+    \end{align}
+    Similarly, for the transpose, we obtain:
+    \begin{align}
+        \left| \partial^\mu \left[ \left( \D \Phi \right)^{-\top}(\bm{0})\right]\right|_{2,2} &\leq  \abs{\mu}! \left((|\D \Phi_j |_{2,2})_{j \geq 1}\right) ^{\mu},\label{eq:invtranspbound}
+    \end{align}
+    because the spectral norm is transpose invariant.
+    Next, we take a look at the determinant by evaluating the derivative iteratively.
+    For an arbitrary $j \in \text{supp}(\mu)$:
+    \begin{align*}
+        g_\mu^{\bm{y}}&\coloneqq\left| \partial^\mu \left[ \det\left( \D \Phi(\y) \right)\right]\right| \\
+        &\phantom{:}=\left| \partial^{\mu - e_j}\left[ \det(\D \Phi(\y)) \tr\left((\D\Phi(\y)) ^{-1}\D\Phi_j\right)\right]\right|\\
+        &\phantom{:}=\Bigg| \sum_{\nu \leq \mu - e_j}  \binom{\mu - e_j }{ \nu}  \partial^{\nu} \left[ \det\left( \D \Phi(\y) \right)\right] \\&\qquad\qquad\qquad\qquad\qquad\qquad\tr\left( \partial^{\mu - e_j - \nu}\left[ (\D \Phi(\y))^{-1} \right] \D \Phi_j  \right)\Bigg|\\
+        &\phantom{:}\leq \sum_{\nu \leq \mu - e_j}  \binom{\mu - e_j }{\nu}  g_\nu^{\bm{y}} | \partial^{\mu - e_j - \nu}\left[ (\D \Phi(\y))^{-1} \right]|_F | \D \Phi_j |_F,
+    \end{align*}
+    with $|\cdot|_F$ the Frobenius norm.
+    Evaluating at $\bm{y}=\bm{0}$ and employing~\eqref{eq:invbound}, we obtain
+    \begin{align*}
+        \left| \partial^\mu \left[ \det\left( \D \Phi(\bm{0}) \right)\right]\right| &= g_\mu^{\bm{0}}\\
+        &\hspace{-30pt}\leq \sum_{\nu \leq \mu - e_j}  \binom{\mu - e_j }{ \nu}  g_\nu^{\bm{0}} (|\mu - \nu|-1)!((| \D \Phi_j |_F)_{j\geq 1})^{\mu - \nu},
+    \end{align*}
+    and we claim this recurrence relation is solved by
+    \begin{equation}
+        g_\mu^{\bm{0}} \leq \abs{\mu}!(|\D \Phi_j|_F)^\mu, \label{eq:detbound}
+    \end{equation}
+    for every $\mu\in\mathcal{F}$.
+    To show this, we proceed by induction on $\abs{\mu}$.
+    For $\mu = \bm{0}$, we have  $g_{\bm{0}}^{\bm{0}} = 1=|\bm{0}|!(|\D \Phi_j|_F)^{\bm{0}},$ where we used the convention that $0!=1$.
+    Assuming~\eqref{eq:detbound} holds for $\abs{\mu} \leq n$, for $g_{\mu+e_j}^{\bm{0}}$, and any $j\geq 1$, we have:
+    \begin{align*}
+        g_{\mu+e_j}^{\bm{0}}
+        &\leq((| \D \Phi_j |_F)_{j\geq 1})^{\mu}\sum_{\nu \leq \mu}  \binom{\mu }{ \nu}  \abs{\nu}! |\mu - \nu|!
+        \\&=   (\abs{\mu}+1)!((| \D \Phi_j |_F)_{j\geq 1})^{\mu},
+    \end{align*}
+    where, in the last inequality, we used the case $N=2$ of Lemma~\ref{lem:multinomialsum} in Appendix~\ref{ap:combilemma}.
+
+    Finally, we bound $| \partial^\mu (a \circ \Phi) |$ by exploiting the affine dependence of $\Phi$ on $\y$:
+    \begin{align}
+        | \partial^\mu ( a \circ \Phi ) | \leq | \D^{|\mu|} a|_{|\mu|,2}  ((|\Phi_j|)_{j \geq 1})^{\mu}\leq \Cat(|\mu|)((|\Phi_j|)_{j \geq 1})^{\mu}.\label{eq:gbound}
+    \end{align}
+
+    We finish the first part of the proof by expanding equation~\eqref{eq:inbetweenbound} using the bounds in equations~\eqref{eq:invbound} --~\eqref{eq:gbound} to obtain
+    \begin{align*}
+        &|\partial^\mu{A}(\bm{0})|_{2,2}\nonumber\\
+        &\leq \sum_{\nu^{(1)}+\nu^{(2)}+\nu^{(3)}+\nu^{(4)}=\mu} \binom{\mu}{ \nu^{(1)},\nu^{(2)},\nu^{(3)}, \nuiv}
+        |\nu^{(1)}|!\left( (|\D \Phi_j |_{2,2})_{j \geq 1} \right)^{\nu^{(1)}}\nonumber\\
+        & \qquad \qquad    |\nu^{(2)}|!\left( |\D \Phi_j |_{2,2})_{j \geq 1} \right)^{\nu^{(2)}}  |\nu^{(3)}|!\sqrt{d}^{|\nu^{(3)}|}\left( |\D \Phi_j |_{2,2})_{j \geq 1} \right)^{\nu^{(3)}}\nonumber\\
+        &\qquad\qquad\qquad \qquad  \Cat(|\nuiv|)((|\Phi_j|)_{j \geq 1})^{\nuiv} \nonumber \\
+        &\leq  \sum_{\nuiv \leq \mu} \left[ \binom{\mu }{ \nuiv} \sqrt{d}^{\abs{\mu - \nuiv}} \left(( |\D \Phi_j |_{2,2})_{j\geq 1} \right)^{\mu - \nuiv}\right. \\
+        &\qquad\qquad   \sum_{\nu^{(1)}+\nu^{(2)}+\nu^{(3)}=\mu-\nuiv} \binom{\mu - \nuiv }{ \nu^{(1)},\nu^{(2)},\nu^{(3)}} |\nu^{(1)}|! |\nu^{(2)}|! |\nu^{(3)}|!  \nonumber\\
+        &\qquad\qquad\qquad\qquad\Cat(|\nuiv|) ((|\Phi_j|)_{j \geq 1})^{\nuiv}\Bigg]  \nonumber \\
+        &\leq  \Cat(|\mu|)  \sum_{ \nuiv \leq \mu} \binom{\mu}{\nuiv} \frac{(|\mu| - |\nuiv| + 2)!}{2} \nonumber\\
+        & \qquad\qquad((|\D \Phi_j|_{2,2} )_{j \geq 1})^{\mu - \nuiv} \sqrt{d}^{\,|\mu - \nuiv|} ((| \Phi_j| )_{j \geq 1})^{ \nuiv},
+    \end{align*}
+    where, on the last line, we employed Lemma~\ref{lem:multinomialsum} in Appendix~\ref{ap:combilemma} with $N=3$.
+
+    To find the derivative $\left|\partial^\mu F(\bm{0}) \right|$, and finish the proof, we expand using the general Leibniz rule, such that equation~\eqref{eq:detbound}, and the analogous for $f$ of~\eqref{eq:gbound}, lead to
+    \begin{align*}
+        \left|\partial^\mu F(\bm{0}) \right| &\leq \sum_{\nui + \nuii = \mu} \binom{\mu }{ \nui, \nuii} | \partial^\nui \det(\D\Phi(\bm{0})) |  | \partial^\nuii (f \circ \Phi(\bm{0})) |\\
+        &\leq \Cft(|\mu|)   \sum_{\nu \leq\mu} \binom{\mu }{ \nu} |\nu|!\sqrt{d}^{|\nu|}(|(\D \Phi_j|_{2,2})_{j \geq 1})^\nu ((|\Phi_j|)_{j \geq 1})^{\mu-\nu},
+    \end{align*}
+    for every $\mu\in\mathcal{F}$.
+\end{proof}
+
+With these bounds at hand, we define $(b_j(\x))_{j \geq 1}$ in the following corollary:
+\begin{corollary}
+    \label{lm:Afbound}
+    For $\y \in Y $, let ${A}(\y; \x)$, $F(\y; \x)$ be defined by equations~\eqref{eq:hatAdefpois} and~\eqref{eq:hatfdefpois} respectively, and let Assumptions~\ref{ass:analytic} and~\ref{ass:phijpois} hold.
+    Then, for a.e. $\x \in {D}$ and for every $\mu \in \mathcal{F}$, we have the bounds
+    \begin{align}
+        |\partial^\mu A(\bm{0};\x)|_{2,2} \leq ((b_j(\x))_{j \geq 1})^\mu f_A(|\mu|),
+    \end{align}
+    and
+    \begin{align}
+        |\partial^\mu F(\bm{0};\x)| \leq ((b_j(\x))_{j \geq 1})^\mu f_F(|\mu|),
+    \end{align}
+    where
+    \begin{align}
+        f_A(n)\coloneqq\Cat(n) \frac{(n+3)!}{3!} \text{, }\qquad f_F(n)\coloneqq\Cft(n) n!,
+    \end{align}
+    and
+    \begin{equation}
+        b_j(\x)\coloneqq |\Phi_j (\x)| + \sqrt{d}|\D\Phi_j(\x) |_{2,2}\label{eq:bj_phi}.
+    \end{equation}
+\end{corollary}
+\begin{proof}
+    The result follows from the application of Lemma~\ref{lem:multinomialsum} with $N=2$ to Lemma~\ref{thm:Afbound}, after we bound both $\sqrt{d}|\D\Phi_j|_{2,2}$ and $|\Phi_j|$ by $b_j$, $j \geq 1$.
+\end{proof}
+To verify the assumptions of Theorem~\ref{thm:lpsummability}, we are left with the task to verify conditions~\eqref{eq:rhoArhoFass} --~\eqref{eq:assKbKc} and to find a positive sequence $(\rho_j)_{j\geq 1}$ with $\rho_j > 1$ satisfying condition~\eqref{eq:Kbassumption}.
+To attain this goal, we need to bound $b_j(\x)$, $j \geq 1$, in order to determine $\Kt < 1$ in~\eqref{eq:Kbassumption} and finally show
+\begin{align}
+    g_A(\Kb) &= \sum_{n  \geq 1} \Cat(n) \binom{n+3}{3} \Kb^n\\
+    &<A_{\min}
+    = a_{\min}\sigma_{\min}^4, \label{eq:gAnonexplicit}
+\end{align}
+where the value of $A_{\min}$ follows from Lemma~\ref{lem:courantfish2pois} combined with the definition of $A(\y,\cdot)$ from equation~\eqref{eq:hatAdefpois}.
+Therefore, we have
+\begin{align}
+    g_A(\Kb) <  a_{\min}\sigma_{\min}^4  = A_{\min}\label{eq:gAdefshape},
+\end{align}
+and
+\begin{equation*}
+    \min\{\rho_A\rho_F, \rho_A\} > \Kt.
+\end{equation*}
+Here $\sigma_{\min}$ is the lower bound on the singular values of $\D\Phi^{-1}$ and follows from Lemma~\ref{lem:courantfish2pois}.
+
+To bound $b_j(\x)$, $j \geq 1$, we are dependent on bounding $\Phi_j(\x)$ and $\D\Phi_j(\x)$.
+We will formulate these bounds in the next section.
+
+\begin{remark}
+    In the special case where the sequences $\Ca(n)$ and $\Cf(n)$ are bounded, and therefore $\Cat(n)\equiv \Cat$ and $\Cft(n)\equiv\Cft$ are constant, we can expand equation~\eqref{eq:gAnonexplicit} explicitly into
+    \begin{align*}
+        g_A(\Kb) = \Cat \left( \frac{1}{(1-\Kt)^4} -1\right).
+    \end{align*}
+    Moreover, equation~\eqref{eq:assKbKc} is satisfied by Remark~\ref{rem:Kbinterval}.
+\end{remark}
+\begin{remark}
+    We observe that sharper constants in the convergence estimate could be obtained by explicitly adapting the proof of Theorem~\ref{thm:l2summability} to the specific case of parametric domains considered in this section.
+    This would improve the constants whilst leading to the same summability exponent for the Taylor coefficients.
+    However, the summability exponent for the Taylor coefficients would be the same as the one we obtained from the more general result of Theorem~\ref{thm:l2summability}.
+\end{remark}
+\begin{remark}
+    From equation~\eqref{eq:gAdefshape}, we can deduce that, as described in Remark~\ref{rem:seperation1}, the important quantity here is the amount of relative variation to $g_A(\Kt)/(a_{\min}\sigma_{\min}^4)$, where we see how different domain mappings affect the constants.
+\end{remark}
+
+\subsection{Bounds for the domain mappings}\label{subsec:transformation-methods}
+With the appropriate bounds on $A$ and $F$ at hand, we need to bound $b_j(\x)$ from equation~\eqref{eq:bj_phi} to find an appropriate sequence $\rho_j$ that satisfies equation~\eqref{eq:Kbassumption}.
+In this section, we will compute these bounds for both the mollifier mapping and harmonic extension as introduced in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}.
+Moreover, we will formulate appropriate sequences $\rho_j$ for both mapping approaches.
+
+The mollifier approach will offer several advantages when studying the theoretical properties of this mapping, and we will explore this for Theorem~\ref{thm:l2summability} in Section~\ref{subsubsec:explicittransformation}.
+The smoothing properties of the harmonic extension bring numerical advantages compared to the mollifier approach, as we will see in the numerical experiments.
+On the other hand, rigorously deriving the bounds required to apply Theorem~\ref{thm:l2summability} is more challenging due to the lack of a general explicit expression of $\Phi(\y,\x)$ in terms of $\x$.
+\begin{remark}
+    To find a sequence $\rho_j$ that satisfies the assumptions of Theorem~\ref{thm:l2summability}, we need, by Remark~\ref{rem:Kbinterval}, that
+    \begin{equation}
+        \brhosum \leq \min\left\{ \rho_A \rho_F, \rho_A \right\}.\label{eq:nessrhosumrhoarhof2}
+    \end{equation}
+    In our case, this gives rise to an implicit restriction on the regularity of the coefficients $a$ and $f$ in equation~\eqref{eq:shapepoisson}, which we have to check after having chosen $\left\{ \rho_j \right\}_{j\geq 1}$.
+\end{remark}
+
+\subsubsection{Mollifier transformation}
+\label{subsubsec:explicittransformation}
+In this section, we examine a transformation that maps the nominal domain ${D}$ to the parameterized domain $\Dy$ by employing the mollifier transformation outlined in Section~\ref{subsec:mollifier-mapping}.
+To verify the assumptions of Theorem~\ref{thm:lpsummability}, we need to calculate an explicit bound on the Jacobian matrices $\D\Phi_j(\x)$, $j \geq 1$, which is given by the following lemma:
+\begin{lemma}\label{lem:Dphibound}
+For the transformation given by equation~\eqref{eq:mollifiertransf} with the parameter-dependent radius as in equation~\eqref{eq:rdef}, such that $\Phi_j(\x)$ with $j\geq 1$ is given by equation~\eqref{eq:frameworkmapping}, we have the bound
+\begin{equation}
+    |\D\Phi_j(\x)|_{2,2} \leq \chibarone | \psi_j(\theta(\x)) | +  \chibartwo |\psi_j'(\theta(\x))  |, \qquad \text{for a.e. } \x \in {D}, \label{eq:dphijbound}
+\end{equation}
+with
+\begin{align}
+    \chibarone &= \sup_{\x \in \mathrm{supp}(\chi)} \frac{1}{\sqrt{2}} \Bigg( |\nabla_{\x} \chi(\x)|^2  +\frac{\chi(\x)^2}{|\x|^2}  +\nonumber \\
+    &\qquad \qquad \qquad \sqrt{\left( |\nabla_{\x} \chi|^2  +\frac{\chi(\x)^2}{|\x|^2}   \right)^2-\frac{4\chi(\x)^2}{|\x|^4}  \left( \nabla_{\x}\chi(\x)\cdot \x \right) ^2}  \Bigg)^{\frac{1}{2}},
+\end{align}
+and
+\begin{align}
+    \chibartwo &= \sup_{\x \in \mathrm{supp}(\chi)}  \frac{\chi\left(\x\right)}{|\x| }.
+\end{align}
+\end{lemma}
+\begin{proof}
+    The proof relies on establishing a bound of the form
+    \begin{align*}
+        |\D\Phi_j(\x)|_{2,2} \leq| \psi_j(\theta(\x)) ||  A_1(\x) |_{2,2}  +  |  \psi_j'(\theta(\x))  || A_2(\x)|_{2,2},
+    \end{align*}
+    for a.e. $\x \in D$, and calculating the largest singular values of $A_1(\x)$ and $A_2(\x)$, see Appendix~\ref{ap:Dphibound_boundpf} for details.
+\end{proof}
+
+For the interior affine mollifier from Definition~\ref{def:interior_mollifier}, we can compute the constants $\chibarone$ and $\chibartwo$ explicitly:
+\begin{corollary}[Bounds for interior mollifier]
+    \label{cor:chi_bounds_interior_corollary}
+    For the interior affine mollifier~\eqref{eq:interior_mollifier}, the constants in Lemma~\ref{lem:Dphibound} are given by
+    \begin{equation}
+        \chibarone  = \frac{4}{3{r_0^-}} \sqrt{ \left( 1+ \frac{L_{r_0} ^2}{{r_0^-}^2}    \right) + \left(1 - \frac{r_0^-}{4r_0^-}\right)^2 },\label{eq:chibarone}
+    \end{equation}
+    and
+    \begin{equation}
+        \chibartwo = \frac{4}{{3r_0^-}} \left(1 - \frac{r_0^-}{4r_0^-}\right),\label{eq:chibartwo}
+    \end{equation}
+    where $L_{r_0}$ is the Lipschitz constant of $r_0$.
+\end{corollary}
+The proof follows by direct computation, which we present in Appendix~\ref{ap:Dphibound_boundpf}.
+
+Now, we expand on the special case where the functions $\psi_j$ in equation~\eqref{eq:rdef} are wavelets as introduced in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}.
+To find the optimal convergence rate of the Taylor coefficients~\eqref{eq:taylorseq} of the solution to~\eqref{eq:transformedvarformpois}, we propose a sequence $\rho_j$ to verify the assumptions of Theorem~\ref{thm:lpsummability}.
+Lemma~\ref{lem:poitwisesum}, together with Assumption~\ref{ass:mollifier}, ensure that the domain mapping fulfills Assumption~\ref{ass:phijpois}.
+
+To this aim, we turn our attention to the variational formulation on the reference domain, equation~\eqref{eq:transformedvarformpois}.
+We remind the reader that Assumption~\ref{ass:phijpois} when considered with Assumption~\ref{ass:analytic}, ensure the fulfillment of Assumption~\ref{ass:afanalytic}.
+Together with the bounds from Lemma~\ref{lem:poitwisesum},  this guarantees that, for every $\y\in Y$, $A(\y; \x)$ and $F(\y;\x)$ as defined in~\eqref{eq:hatAdefpois}-\eqref{eq:hatfdefpois} are in $W^{1,\infty}(D)$ and $L^2(D)$, respectively, with $\y$-independent norm bounds.
+
+To verify the assumptions of Theorem~\ref{thm:lpsummability}, we recall that, on the basis of Corollary~\ref{lm:Afbound}, the sequence $(b_j(\x))_{j\geq 1}$ appearing in~\eqref{eq:AFder} is given by~\eqref{eq:bj_phi}, provided we use $\lambda$ as index.
+Then, for the sequence $(\rho_{\lambda})_{\lambda}$ we propose, for any $\beta < \alpha$,
+\begin{equation}
+    \rho_\lambda \coloneqq 1 + \frac{\mathcal{B}_M(1-2^{\beta - \alpha})2^{(\beta - 1)|\lambda|}}{1-2^{-\alpha}},   \label{eq:rhoprop}
+\end{equation}
+where\footnote{We note that the definition of $\mathcal{B}_{M}$ given here is slightly different from the version published in~\cite{vanharten2024}. This is due to a small typographical error in the published version, and the following derivations here have been changed accordingly.}
+\begin{align}
+    \mathcal{B}_M = \frac{g_A^{-1}(\amin\sigma_{\min}^4)}{1 + \sqrt{2}\chibarone + \sqrt{2}\frac{M_d}{M}\chibartwo\frac{1-2^{-\alpha}}{1-2^{-(\alpha-1)}}} \frac{1}{r_0^- \vartheta}  - 1. \label{eq:B}
+\end{align}
+We need to ensure that $\mathcal{B}_M>0$ by choosing a small enough value for the maximal shape variation $\vartheta$.
+In~\eqref{eq:B}, we remind the reader that $\sigma_{\min}$ is the lower bound on the singular values of the Jacobian matrix.
+
+To check that~\eqref{eq:Kbassumption} is fulfilled, we expand the sum in~\eqref{eq:phidefpois} and treat the resulting terms separately:
+\begin{align*}
+    &\sum_\lambda \rho_\lambda|\D\Phi_\lambda(\x)|_{2,2}\\
+    &\qquad= \sum_\lambda \left( 1 + \frac{B(1-2^{\beta - \alpha})2^{(\beta - 1)|\lambda|}}{(1-2^{-\alpha})\left(\bar{\chi}_1  + \bar{\chi}_2\frac{M_d}{M}\right)} \right)|\D\Phi_\lambda|_{2,2}\\
+    &\qquad= \sum_\lambda |\D\Phi_\lambda(\x)|_{2,2} + \sum_\lambda \frac{\mathcal{B}_M(1-2^{\beta - \alpha})2^{(\beta - 1)|\lambda|}}{(1-2^{-\alpha})} |\D\Phi_\lambda(\x)|_{2,2}.
+\end{align*}
+First, making use of Lemmas~\ref{lem:poitwisesum} and~\ref{lem:Dphibound}, we bound the first term
+\begin{align*}
+    \sum_\lambda  |\D\Phi_\lambda(\x)|_{2,2}&\leq  \sum_\lambda \left(\bar{\chi}_1| \psi_j(\theta(\x)) | + \bar{\chi}_2|  \psi_j'(\theta(\x))  |\right)\nonumber\\
+    &\leq  r_0^-\vartheta \left( \bar{\chi}_1 + \bar{\chi}_2\frac{M_d}{M} \frac{1-2^{-\alpha}}{1-2^{-(\alpha-1)}}    \right),
+\end{align*}
+and the second term
+\begin{revenv}
+    \begin{align*}
+        &\sum_\lambda   \frac{\mathcal{B}_M(1-2^{\beta - \alpha})2^{(\beta - 1)|\lambda|}}{   (1-2^{-\alpha})} |\D\Phi_\lambda(\x)|_{2,2}\\
+        &\qquad\leq\sum_{l \geq 0} r_0^-\mathcal{B}_M(1-2^{\beta - \alpha})2^{(\beta - 1)l} \left(\bar{\chi}_1 2^{-l} +\bar{\chi}_2 \frac{M_d}{M}\right) 2^{-(\alpha-1) l}\\
+        &\qquad\leq r_0^- \vartheta  \mathcal{B}_M \left(\bar{\chi}_1 + \bar{\chi}_2\frac{M_d}{M}\right).
+    \end{align*}
+\end{revenv}
+Combining both, we get
+\begin{align*}
+    &\sum_\lambda \rho_\lambda|\D\Phi_\lambda(\x)|_{2,2} \nonumber\\
+    &\qquad\leq r_0^-\vartheta \left( \bar{\chi}_1 + \bar{\chi}_2\frac{M_d}{M} \frac{1-2^{-\alpha}}{1-2^{-(\alpha-1)}}  + \mathcal{B}_M\left(\bar{\chi}_1 + \bar{\chi}_2\frac{M_d}{M}\right)  \right),
+\end{align*}
+see also~\eqref{eq:pointwiseone} and~\eqref{eq:pointwisetwo}.
+In a similar manner, we bound $\sum_\lambda \rho_\lambda|\Phi_\lambda|$ so that, altogether, we obtain
+\begin{align}
+    \sum_{\lambda} \rho_\lambda b_\lambda(\x) &\leq r_0^-\vartheta \Bigg( 1+ \sqrt{2} \bar{\chi}_1 +  \sqrt{2}\bar{\chi}_2\frac{M_d}{M} \frac{1-2^{-\alpha}}{1-2^{-(\alpha-1)}} + \nonumber\\
+    &\qquad\qquad\qquad\qquad\qquad\mathcal{B}_M \Big(1+ \sqrt{2}\chibarone + \sqrt{2}\chibartwo \frac{M_d}{M}\Big)  \Bigg)\nonumber\\
+    &\coloneqq \Kb, \label{eq:endmollifiercalculation}
+\end{align}
+for $\vartheta$ small enough to satisfy~\eqref{eq:rhoArhoFass}.
+
+Because of our choice of $\mathcal{B}_M$ as from~\eqref{eq:B}, we have $\Kb < g_A^{-1}(\amin\sigma_{\min}^4)$, so that equation~\eqref{eq:gAdefshape}, and therefore~\eqref{eq:assKbKc}, are satisfied.
+We also have
+\begin{equation*}
+    \rho_\lambda \sim 2^{(\beta-1)|\lambda|},
+\end{equation*}
+which can be reordered to obtain, for all $j \geq 1$,
+\begin{equation*}
+    \rho_j \sim j^{(\beta-1)},
+\end{equation*}
+using a single index~\cite{bachmayr2017a}.
+
+This sequence satisfies $(\rho_j^{-1})_{j\geq 1} \, \in  \, \ell^q(\mathbb{N})$ with $q>(\beta-1)^{-1}$, so that we can use Theorem~\ref{thm:lpsummability} to obtain $(\anorm{t_\mu})_{\mu \in \mathcal{F}} \, \in \, \ell^p(\mathcal{F})$ for $p>\frac{2(\beta-1)^{-1}}{2+(\beta-1)^{-1}}=\frac{2}{2(\beta-1) + 1}$.
+This implies that $(\anorm{t_\mu})_{\mu \in \mathcal{F}}$ converges with rate $s=\frac{1}{p} = \frac{2(\beta-1) + 1}{2} = (\beta-1) + \frac{1}{2} = \beta - \frac{1}{2}$, for any $\beta < \alpha$ and $\alpha > 2$.
+Therefore, we have the following corollary:
+
+\begin{corollary}\label{cor:mollifiersummability}
+    For the solution to the parameterized PDE~\eqref{eq:transformedvarformpois} with coefficients satisfying Assumption~\ref{ass:analytic}, we consider a mollifier mapping~\eqref{eq:mollifiertransf} with a mollifier that fulfills Assumption~\ref{ass:mollifier}.
+    We use wavelets, as defined in~\eqref{eq:waveletdef}, with $\alpha > 2$ in the radius expansion~\eqref{eq:rdef}, along with a maximal shape variation $\vartheta$, $\mathcal{B}_M > 0$ and $\Kt < \max\{\rho_A \rho_F, 1\}$.
+    Under these conditions, we conclude that $(\anorm{t_\mu})_{\mu \in \mathcal{F}} \in \ell^p(\mathcal{F})$, with $\frac{1}{p} < \alpha - \frac{1}{2}$.
+\end{corollary}
+
+\begin{remark}[General support basis functions]
+    With a technique similar to Remark 2.4 in~\cite{bachmayr2017a}, one can verify that, for general support basis functions, we cannot improve over previous results~\cite{chkifa2015,hiptmair2018}, where a summability exponent of $s < \alpha - 1$ for the Taylor coefficients was shown.
+\end{remark}
+
+
+\subsubsection{Harmonic transformation}
+\label{subsubsec:harmonic}
+To show that we can use the harmonic mapping and satisfy the assumptions of Theorem~\ref{thm:lpsummability}, we will focus our attention on the circular domain $D=\{ \x \in \mathbb{R}^2 : |\x| \leq r_0\}$, with $r_0 > 0$ in the remainder of this section.
+Similar to the mollifier transformation, and in view of~\eqref{eq:bj_phi}, we look for pointwise bounds on the Jacobian matrices.
+
+To bound the norm of the Jacobian matrix of each partial transformation $\Phi_j$, we proceed in two steps: (I) we bound the supremum of the Jacobian matrix by considering its value at the boundary only, applying the maximum principle, and (II) we exploit the Dirichlet-to-Neumann map to estimate the derivatives at the boundary in the tangential and normal directions.
+
+\begin{itemize}
+    \item[(I)]
+    To bound the norm of the Jacobian matrix of the partial transformation, we bound it, for a.e. $\x \in D$, by the pointwise 1-norm of the elementwise transformations:
+    \begin{align*}
+        |\D\Phi_j(\x)|_{2,2}
+        \leq\sum_{\kappa \in \{x, y\}}  |\nabla \Phi_j^\kappa(\x)|_1.
+    \end{align*}
+    As $\Phi_j$ is a weakly harmonic function, the derivatives of $\Phi_j$ are weakly harmonic as well, and the absolute value of the derivatives of $\Phi_j$ and their sum are weakly subharmonic.
+    Hence, we can apply the maximum principle, see, for example~\cite{serrin2011}, to conclude that:
+    \begin{align}
+        \sup_{\x \in D} \sum_{\kappa \in \{x, y\}}  |\nabla \Phi_j^\kappa (\x)|_1 \leq \sup_{\x \in \partial D} \sum_{\kappa \in \{x, y\}}  |\nabla \Phi_j^\kappa(\x)|_1. \label{eq:partialmaxprinc}
+    \end{align}
+    \item[(II)]
+    To evaluate the right-hand side of~\eqref{eq:partialmaxprinc} at the boundary, we estimate, for a.e. $\x \in D$,
+    \begin{align*}
+        |\nabla \Phi_j^\kappa(\x)|_1 \leq  \sqrt{2} |\nabla \Phi_j^\kappa(\x)|,
+    \end{align*}
+    where we remind that $|\cdot|$ is the Euclidean norm.
+    Now, we calculate the derivatives explicitly at the boundary in both the radial and angular directions, that is, the normal and tangential derivatives at the boundary, respectively.
+    For the angular derivative, we can differentiate the boundary condition in~\eqref{eq:harmonicext} to obtain $ \frac{\partial \phi_j^\kappa}{\partial \theta} = (f_\kappa\psi_j)'(\theta)$, for $\theta \in [0,2\pi)$ and $\kappa\in\{x,y\}$.
+
+    To complete the computation of the gradient, we observe that the radial derivative of $\Phi_j^\kappa$ equals to the Dirichlet-to-Neumann (DtN) map of $\phi_j^\kappa$, $j\geq 1$.
+
+    For circular domains, the DtN map of the Laplacian is given by $\sqrt{-\Delta_{\partial D}}$, the square root of the Laplace-Beltrami operator on the boundary circle~\cite{girouard2022}.
+    Because our domain is circular, we pick up a factor of $\frac{1}{r_0}$ due to the curvature of the circle, and we can expand using the symbol of the operator and the Fourier transform $\mathcal{F}(\cdot)$,
+    \begin{align*}
+        \sqrt{-\Delta_{\partial D}} \phi_j^\kappa
+        &=\frac{1}{r_0}\int_\mathbb{R} |\xi| \mathcal{F}(\phi_j^\kappa )(\xi) e^{-i \xi x} \d\xi\\
+        &=\frac{1}{r_0}\int_\mathbb{R} i\xi (-i) \sign(\xi) \mathcal{F}(\phi_j^\kappa )(\xi) e^{-i \xi x} \d\xi\\
+        &=\frac{1}{r_0}\int_\mathbb{R} \mathcal{F}\left(\frac{\d}{\d x}\mathcal{H}(\phi_j^\kappa )\right) (\xi) e^{-i \xi x} \d\xi\\
+        &=\frac{1}{r_0}\frac{\d}{\d x}\mathcal{H}(\phi_j^\kappa ),
+    \end{align*}
+    where $\mathcal{H}(\cdot)$ denotes the Hilbert transform~\cite{hahn1996}.
+
+    Now, we remember that, for any signal $f$, the signal $f^A\coloneqq f+i\mathcal{H}(f)$ is analytic, where analyticity is meant in the signal processing sense; it has no negative frequency components.
+    Moreover, we recall that the instantaneous amplitude $A(f^A)(x)$ of any analytic signal $f^A$ is given by the modulus of the signal itself.
+    Therefore, we observe that, for every $\theta\in[0,2\pi)$ and $\kappa \in \{x,y\}$,
+    \begin{align}
+        \left| \nabla \phi_j^\kappa(\theta)  \right|&\leq \sqrt{2} \max\{1, r_0^{-1}\} \left|(f_\kappa\psi_j)'(\theta) + i \mathcal{H}\left( (f_\kappa\psi_j)' \right)(\theta)  \right| \nonumber\\
+        &= \sqrt{2} \max\{1, r_0^{-1}\} A((f_\kappa\psi_j)')(\theta) \nonumber\\
+        &\leq \sqrt{2} \max\{1, r_0^{-1}\} \left( A(\psi_j)(\theta) + A(\psi_j')(\theta) \right),
+    \end{align}
+    where we have used the definition of $f_\kappa$, which has an amplitude of 1.
+    From this, for a.e. $\theta \in [0,2\pi)$, we obtain the bound
+    \begin{align*}
+        |\D\Phi_j(\theta)|_{2,2} \leq  4 \max\{1, r_0^{-1}\}  \left( A(\psi_j)(\theta) + A(\psi_j')(\theta) \right).
+    \end{align*}
+    with $\x$ on the boundary $\partial D$, corresponding to the angle $\theta$.
+
+\end{itemize}
+The sum $\sum_{j \geq 1} \rho_j|\D\Phi_j(\x)|_{2,2} $ is bounded from above by the weakly subharmonic function $\sum_{j\geq 1}  \sum_{\kappa \in \{x, y\}}  |\nabla \phi_j^\kappa(\x)|_1$ and its maximum is attained at the boundary as well.
+Therefore, we can repeat \rev{steps} (I) and (II) to obtain the bound
+\begin{align}
+    &\hspace{-20pt}\sup_{\x \in D}\sum_{j\geq 1} \rho_j |\D\Phi_j(\x)|_{2,2}  \nonumber\\
+    &\hspace{-20pt}\,\,\leq \sup_{\theta \in [0,2\pi)}  4 \max\{1, r_0^{-1}\} \left(  \sum_{j \geq 1}\rho_j A(\psi_j)(\theta) + \sum_{j \geq 1}\rho_j A(\psi_j')(\theta) \right). \label{eq:rhodphisum}
+\end{align}
+Similarly, since $\Phi_j$ is harmonic, we can repeat the same argument and obtain
+\begin{align}
+    \sup_{\x \in D}\sum_{j\geq 1} \rho_j |\Phi_j(\x)|\leq \sup_{\theta \in [0,2\pi)} \sum_j \rho_j |\psi_j(\theta)|.\label{eq:rhophisum}
+\end{align}
+Finally, combining equations~\eqref{eq:rhodphisum} and~\eqref{eq:rhophisum}, we arrive at the following lemma:
+\begin{lemma}\label{lem:harmboundbj}
+For the harmonic transformation given by equation \eqref{eq:harmonicext}, with $b_j(\x)$ from equation~\eqref{eq:bj_phi} and a positive sequence $(\rho_j)_{j \geq 1}$ on a circular, two-dimensional reference domain, we have the bound
+\begin{align*}
+    &\sup_{\x \in D}\sum_j \rho_j b_j(\x) \\ &\qquad\leq \sup_{\theta \in [0,2\pi)} \Bigg( \left(4\sqrt{2} \max\{1, r_0^{-1}\} + 1\right) \sum_{j}\rho_j A(\psi_j)(\theta) + \\  &\qquad\qquad\qquad\qquad\qquad\qquad\qquad4\sqrt{2} \max\{1, r_0^{-1}\} \sum_{j}\rho_j A(\psi_j')(\theta) \Bigg).
+\end{align*}
+\end{lemma}
+Similarly to Subsection~\ref{subsubsec:explicittransformation}, we focus on the wavelet expansion~\eqref{eq:waveletdef}, with decay parameter $\alpha>2$, Lipschitz mother wavelet, and we index the wavelets using $\lambda$ instead of $j$.
+To show the desired estimate on $\sum_{\lambda} \rho_\lambda b_\lambda (\x)$, we set, similarly to equations~\eqref{eq:Mbound} and~\eqref{eq:Mbound3}:
+\begin{equation}
+    M_H\coloneqq\sup_{\theta \in [0,1)} \sum_{k \in \mathbb{Z}}A(\Psi)(\theta - k), \label{eq:Mbound2}
+\end{equation}
+and
+\begin{equation}
+    M_{d,H}\coloneqq\sup_{\theta \in [0,1)} \sum_{k \in \mathbb{Z}}A(\Psi')(\theta - k), \label{eq:Mbound4}
+\end{equation}
+and we proceed as in Subsection~\ref{subsubsec:explicittransformation}, replacing $M$ and $M_d$ with $M_H$, $M_{d,H}$ whenever applicable.
+We have to be careful, though, as the Hilbert transform does not preserve the locality properties of $\Psi$.
+However, if the mother wavelet $\Psi(\theta)$ has $n$ vanishing moments, the derivative of decays with $\left|  \Psi' (\theta) \right| \leq \mathcal{O}(n^{-1-n})$~\cite{chaudhury2011}, which gives us the required summability when we periodize to obtain a wavelet system on the circle.
+Hence, we recover Lemma~\ref{lem:poitwisesum} with the aforementioned replacements.
+
+Now, we take $\rho_\lambda$ as defined in equation~\eqref{eq:rhoprop}, where $\mathcal{B}_M$ is replaced by
+\begin{equation}
+    \mathcal{B}_H = \frac { \splitfrac{ \frac{1}{\vartheta}g_A^{-1}(\amin\sigma_{\min}^4) - 4\sqrt{2}\max\{1, r_0 \}   -}{\qquad\qquad\qquad\left(4\sqrt{2}\max\{1, r_0 \} + r_0 \right)   \frac{M_{d,H}}{M_H}\frac{1-2^{-\alpha}}{1-2^{-(\alpha - 1)}}}   }{4\sqrt{2}\max\{1, r_0 \}\left( 1+\frac{M_{d,H}}{M_H} \right) + r_0  }.\label{eq:Bhdef}
+\end{equation}
+Similarly to $\mathcal{B}_M$, we should be careful in choosing $\vartheta$ small enough such that we keep $\mathcal{B}_H$ positive.
+By repeating the calculations from equation~\eqref{eq:rhoprop} to Corollary~\ref{cor:mollifiersummability}, we arrive at the following statement:
+\begin{corollary}\label{cor:harmonicsummability}
+For the solution to the parameterized PDE~\eqref{eq:transformedvarformpois} satisfying Assumption~\ref{ass:analytic}, and a harmonic mapping~\eqref{eq:harmonicext}, and using wavelets as in~\eqref{eq:waveletdef} for the radius expansion~\eqref{eq:rdef} with maximal shape variation $\vartheta$ such that $\mathcal{B}_H>0$ and $\Kt < \max\{\rho_A\rho_F,1\}$, we have that
+$(\anorm{t_\mu})_{\mu \in \mathcal{F}}$ $\in \ell^p(\mathcal{F})$, with rate $\frac{1}{p} < \alpha - \frac{1}{2}$,  $\alpha > 2$.
+\end{corollary}
+
+\begin{remark} \label{rem:sepofvar}
+The results leading up to Lemma~\ref{lem:harmboundbj} that have been obtained using the symbol of $\sqrt{-\Delta_{\partial D}}$ can be obtained via direct computations of the exact solution of equation~\eqref{eq:harmonicext} which, in turn, can be obtained via separation of variables, see for instance~\cite{natalini2008}.
+\end{remark}
+
+\begin{remark}
+    For \rev{non-circular domains} with Lipschitz boundary, we cannot rely on an explicit formula for the DtN map similarly to the approach outlined in this section; see, for instance,~\cite{girouard2022}.
+
+    Direct computations, as outlined in Remark~\ref{rem:sepofvar}, do not seem to help draw useful conclusions either.
+    We believe that the general result should follow from the quasi-local properties of the DtN map.
+    Still, these are difficult to find in the literature, which focuses more on global properties expressed in terms of norms.
+
+    \begin{revenv}
+        However, for practical purposes, we note that the applicability of the harmonic mapping goes even beyond the star-shaped setting presented here if one chooses an appropriate series expansion for the boundary, similar to equation~\eqref{eq:rdef}.
+    \end{revenv}
+\end{remark}

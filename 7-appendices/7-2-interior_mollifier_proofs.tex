@@ -1,0 +1,138 @@
+Here, we will present the proof of Lemma~\ref{lem:Dphibound} and the computations needed to proof Corollary~\ref{cor:chi_bounds_interior_corollary}.
+
+First, we will present the proof of Lemma~\ref{lem:Dphibound}:
+\begin{proof}
+    We rewrite equation~\eqref{eq:mollifiertransf} to obtain
+    \begin{equation*}
+        \Phi(\x;\bm{y})=\hat{\bm{x}} + \sum_{j \geq 1} \Phi_j(\x)y_j,
+    \end{equation*}
+    with
+    \begin{equation*}
+        \Phi_j(\x) = \chi\left(\x\right)  \psi_j(\theta(\x)) \frac{\x}{|\x|}.
+    \end{equation*}
+    Next, we take the derivative with respect to $\x$ and the $|\cdot|_{2,2}$-norm:
+    \begin{align}
+        &\quad\,\,\left| \D \Phi_j(\x) \right|_{2,2} \\
+        &= \left| \D \left[\chi\left(\x\right)  \psi_j(\theta(\x)) \frac{\x}{|\x|} \right] \right|_{2,2}\nonumber\\
+        &=\left|  \D\left[ \chi\left(\x\right) \frac{\x}{|\x|} \right] \psi_j(\theta(\x))  +
+        \chi\left(\x\right) \frac{\x}{|\x|} \D\left[\theta(\x) \right]  \psi_j'(\theta(\x)) \right|_{2,2}\nonumber \\
+        &\leq| \psi_j(\theta(\x)) ||  A_1(\x) |_{2,2}  +
+        |  \psi_j'(\theta(\x))  || A_2(\x)|_{2,2}, \label{eq:derbound}
+    \end{align}
+    with matrix-valued functions $A_1(\x)$ and $A_2(\x)$.
+    First, we expand $A_1(\x)$:
+    \begin{align*}
+        A_1(\x) &= \D\left[ \chi\left(\x\right) \frac{\x}{|\x|} \right] \\
+        &=  \frac{1}{|\x|^3}\begin{bmatrix} |\x|^2\xx\chi_{x_1}(\x)+\chi\left(\x\right)  \xy^2  & |\x|^2\xx\chi_{x_2}(\x)-\chi\left(\x\right) \xx\xy \\ |\x|^2\xy\chi_{x_1}(\x) -\chi\left(\x\right) \xx\xy& |\x|^2\xy\chi_{x_2}(\x)+\chi\left(\x\right) \xx^2 \end{bmatrix}	,
+    \end{align*}
+    where the partial derivatives $\frac{\partial \chi}{\partial \xx}$ and $\frac{\partial \chi}{\partial \xy}$ are denoted by $\chi_{\xx}$ and  $\chi_{\xy}$ respectively.
+    To obtain the $|\cdot|_{2,2}$-norm of $A_1(\x)$, we calculate the largest singular value $\sigma^+$ explicitly.
+    First, we calculate the $A_1 A_1^\top$:
+    \small\begin{align*}
+              &A_1 A_1^\top= \frac{1}{|\x|^6}\begin{bmatrix} |\x|^2\xx\chi_{x_1}(\x)+\chi\left(\x\right)  \xy^2  & |\x|^2\xx\chi_{x_2}(\x)-\chi\left(\x\right) \xx\xy \\ |\x|^2\xy\chi_{x_1}(\x) -\chi\left(\x\right) \xx\xy& |\x|^2\xy\chi_{\xy}(\x)+\chi\left(\x\right) \xx^2 \end{bmatrix} \cdot \\ &\qquad \qquad\qquad \qquad \begin{bmatrix} |\x|^2\xx\chi_{\xx}(\x)+\chi\left(\x\right)  \xy^2  &  |\x|^2\xy\chi_{\xx}(\x) -\chi\left(\x\right) \xx\xy\\|\x|^2\xx\chi_{\xy}(\x)-\chi\left(\x\right) \xx\xy  & |\x|^2\xy\chi_{\xy}(\x)+\chi\left(\x\right) \xx^2 \end{bmatrix}\\
+              &=\frac{1}{|\x|^4}\left[
+                                    \begin{array}{cc}
+                                        |\x|^4 \chi_{\xx}(\x)^2+\xy^2 \chi(\x)^2 & |\x|^4 \chi_{\xy}(\x) \chi_{\xx}(\x)-\xx \xy \chi(\x)^2 \\
+                                        |\x|^4 \chi_{\xy }(\x) \chi_{\xx}(\x)-\xx \xy \chi(\x)^2 & |\x|^4 \chi_{\xy}(\x)^2+\xx^2 \chi(\x)^2\\
+                                    \end{array}
+              \right].
+    \end{align*}
+    To calculate the largest eigenvalue, we calculate the trace:
+    \begin{align*}
+        T&\coloneqq \tr(A_1 A_1^\top)
+        %&= \frac{1}{|\x|^4}\left( |\x|^4 \chi_{\xx}(\x)^2+\xy^2 \chi(\x)^2 +   |\x|^4 \chi_{x_2}(\x)^2+\xx^2 \chi(\x)^2   \right)\\
+        = \frac{1}{|\x|^2}\left( |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2   \right)
+        \geq0
+    \end{align*}
+    and the determinant:
+    \begin{align*}
+        D&\coloneqq\det(A_1 A_1^\top)
+        %	&= \frac{1}{|\x|^8}\left( |\x|^4 \chi_{\xx}(\x)^2+\xy^2 \chi(\x)^2 \right) \left(|\x|^4 \chi_{x_2}(\x)^2+\xx^2 \chi(\x)^2 \right) - \\&\qquad \qquad \left( |\x|^4 \chi_{\xy}(\x) \chi_{\xx}(\x)-\xx \xy \chi(\x)^2\right)\left(|\x|^4 \chi_{\xy }(\x) \chi_{\xx}(\x)-\xx \xy \chi(\x)^2 \right) \\
+        =\frac{1}{|\x|^4} \chi(\x)^2 \left( \nabla_{\x}\chi(\x)\cdot \x \right) ^2
+        \geq 0.
+    \end{align*}
+    Now, we consider the characteristic polynomial of $A_1 A_1^\top$ to obtain the largest singular value $\sigma_+$:
+    \begin{align*}
+        \sigma_+^2 &= \frac{1}{2}\left(  T + \sqrt{T^2-4D} \right)\\
+        &=\frac{1}{2} \Bigg(  \frac{1}{|\x|^2}\left( |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2   \right) + \nonumber\\
+        &\qquad \sqrt{\frac{1}{|\x|^4}\left( |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2   \right)^2-\frac{4}{|\x|^4} \chi(\x)^2 \left( \nabla_{\x}\chi(\x)\cdot \x \right) ^2} \Bigg),
+    \end{align*}
+    from which we conclude
+    \begin{align}
+        \sigma_+ &= \frac{1}{\sqrt{2}} \Bigg(  \frac{1}{|\x|^2}\left( |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2   \right) + \\
+        &\sqrt{\frac{1}{|\x|^4}\left( |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2   \right)^2-\frac{4}{|\x|^4} \chi(\x)^2 \left( \nabla_{\x}\chi(\x)\cdot \x \right) ^2} \Bigg)^\frac{1}{2}.\label{eq:derbound1}
+    \end{align}
+
+    In a similar manner to our treatment of $A_1(\x)$, we expand $ A_2(\x)$:
+    \begin{align*}
+        A_2(\x) &= \chi\left(\x\right)\frac{\x}{|\x|}\D\left[\theta(\x) \right]
+        %&=  \chi\left(\x\right) \frac{1}{|\x|}\begin{bmatrix} \xx \\	\xy \end{bmatrix}\frac{1}{|\x|^2} \begin{bmatrix} -\xy & \xx \end{bmatrix}\\
+        =  \frac{\chi\left(\x\right)}{|\x|^3} \begin{bmatrix} -\xx\xy & \xx^2 \\ -\xy^2 &\xx\xy  \end{bmatrix}.
+    \end{align*}
+    For the determinant, we have
+    \begin{align*}
+        \det(A_2) &=   \frac{\chi\left(\x\right)}{|\x|^3}  \det \begin{bmatrix} -\xx\xy & \xx^2 \\ -\xy^2 &\xx\xy  \end{bmatrix}
+        % &= \frac{\chi\left(\x\right)}{|\x|^3}  \left( -\xx^2\xy^2 + \xx^2\xy^2 \right)\\
+        =0.
+    \end{align*}
+    Therefore, we calculate the singular values of $B=\begin{bmatrix} -\xx\xy & \xx^2 \\ -\xy^2 &\xx\xy  \end{bmatrix}$ explicitly:
+    \begin{align*}
+        0 &= \det\left( B^\top B -\lambda I_2\right)
+        \det\left(\begin{bmatrix} -\xx\xy & -\xy^2 \\ \xx^2 &\xx\xy  \end{bmatrix}\begin{bmatrix} -\xx\xy & \xx^2 \\ -\xy^2 &\xx\xy  \end{bmatrix} -\lambda I_2 \right),
+    \end{align*}
+    which we expand to obtain
+    \begin{align*}
+        &\det \begin{bmatrix} \xx^2\xy^2 + \xy^4 - \lambda& -\xx^3\xy - \xx\xy^3 \\ -\xx^3\xy - \xx\xy^3 & \xx^4 + \xx^2\xy^2 -\lambda \end{bmatrix}
+        %&= \left( \xx^2\xy^2 + \xy^4 - \lambda \right)\left( \xx^4 + \xx^2\xy^2 -\lambda  \right) - \left( \xx^3\xy + \xx\xy^3  \right)^2\\
+        %&= \left( 2\xx^4\xy^4+\xx^6\xy^2+\xx^2\xy^6 - \lambda\left( 2\xx^2\xy^2+\xx^4+\xy^4 \right) + \lambda^2 \right) - \left( \xx^6\xy^2 + \xx^2\xy^6 + 2\xx^4\xy^4 \right)\\
+        = \lambda^2  - \lambda\left(\xx^2+\xy^2 \right)^2.
+    \end{align*}
+    From this, we arrive at two singular values, $\sigma_1 = 0$ and $\sigma_2=|\x|^2$, to get
+    \begin{align}
+        |A_2(\x)|_{2,2} %&\leq \chi\left(\x\right) \frac{|\x|^2}{|\x|^3}\nonumber\\
+        &= \frac{\chi\left(\x\right)}{|\x|}.  \label{eq:derbound2}
+    \end{align}
+    Now, the result follows by combining equations~\eqref{eq:derbound},~\eqref{eq:derbound1}, and~\eqref{eq:derbound2}.
+\end{proof}
+
+For the interior mollifier~\eqref{eq:interior_mollifier}, we can compute the constants $\chibarone$ and $\chibartwo$ explicitly, as stated in Corollary~\ref{cor:chi_bounds_interior_corollary}.
+We present the proof here:
+\begin{proof}
+    First, we expand and bound $\chi_1(\x)$:
+    \begin{align}
+        \chi_1(\x) &= \frac{1}{\sqrt{2}}\Bigg(  \frac{1}{|\x|^2}\left( |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2   \right) + \\&\qquad\sqrt{\frac{1}{|\x|^4}\left( |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2   \right)^2-\frac{4}{|\x|^4} \chi(\x)^2 \left( \nabla_{\x}\chi(\x)\cdot \x \right) ^2} \, \Bigg)^\frac{1}{2} \nonumber\\
+        \leq& \frac{1}{\sqrt{2}}\sqrt{   \frac{1}{|\x|^2}\left( |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2   \right) + \sqrt{\frac{1}{|\x|^4}\left( |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2   \right)^2}  }\nonumber\\
+        %	&=  \frac{\sqrt{   |\x|^2  |\nabla_{\x} \chi|^2  +\chi(\x)^2     }}{|\x|}\nonumber\\
+        =&  \sqrt{|\nabla_{\x} \chi|^2  +\frac{\chi(\x)^2}{|\x|^2}     }.\label{eq:singularvaluebound}
+    \end{align}
+    Next, we bound $|\nabla_{\x} \chi|^2$ with mollifier~\eqref{eq:interior_mollifier} for $\a \leq |\x| \leq r_0(\theta(\x))$:
+    \begin{align}
+        |\nabla_{\x} \chi|^2 %&= \chi_{\xx}^2+\chi_{\xy}^2\nonumber\\
+        &=\frac{|\x|^2\left(r_0(\theta(\x))-\a\right)^2 +\left( |\x|-\a    \right)^2  r_0'(\theta(\x)) ^2    }{|\x|^2\left(r_0(\theta(\x))-\a\right)^4}\nonumber\\
+        %&\leq \frac{1}{\left(r_0(\theta(\x))-\a\right)^2} + \frac{\left( \|\x|-\a    \right)^2  r_0'(\theta(\x)) ^2    }{|\x|^2\left(r_0(\theta(\x))-\a\right)^2\left( |\x|-\a    \right)^2}\nonumber\\
+        %&\leq \frac{1}{\left(r_0(\theta(\x))-\a\right)^2} + \frac{  r_0'(\theta(\x)) ^2    }{|\x|^2\left(r_0(\theta(\x))-\a\right)^2}\nonumber\\
+        %&\leq \frac{1}{\left(r_0(\theta(\x))-\a\right)^2} + \frac{  r_0'(\theta(\x)) ^2    }{{r_0^-}^2\left(r_0(\theta(\x))-\a\right)^2}\nonumber\\
+        &\leq \frac{1}{\left(r_0^- -\a\right)^2} + \frac{  r_0'(\theta(\x)) ^2    }{{r_0^-}^2\left(r_0^--\a\right)^2}\nonumber\\
+        &= \frac{16}{9{r_0^-} ^2} \left( 1+ \frac{r_0'(\theta(\x)) ^2}{{r_0^-}^2}    \right)\label{eq:normgradsquaredbound}.
+    \end{align}
+    Similarly, we bound $\frac{\chi(\x)^2}{|\x|^2}$ in the case $\a \leq |\x| \leq r_0(\theta(\x))$:
+    \begin{align}
+        \frac{\chi(\x)^2}{|\x|^2}&=\frac{\left(|\x| - \a\right)^2 }{|\x|^2\left( r_0(\theta(\x))-\a\right)^2}\nonumber\\
+        %    &=\frac{16}{{9r_0^-}^2} \left(1 - \frac{r_0^-}{4\r}\right)^2 \nonumber\\
+        &\leq\frac{16}{{9r_0^-}^2} \left(1 - \frac{r_0^-}{4r_0^+}\right)^2.  \label{eq:chioverrbound}
+    \end{align}
+    Combining equations~\eqref{eq:singularvaluebound},~\eqref{eq:normgradsquaredbound}, and~\eqref{eq:chioverrbound}, we obtain
+    \begin{align*}
+        \chi_1(\x) &\leq \sqrt{\frac{16}{9{r_0^-} ^2} \left( 1+ \frac{r_0'(\theta(\x)) ^2}{{r_0^-}^2}    \right) + \frac{16}{{9r_0^-}^2} \left(1 - \frac{r_0^-}{4r_0^+}\right)^2 }\\
+        %&= \frac{4}{3{r_0^-}} \sqrt{ \left( 1+ \frac{r_0'(\theta(\x)) ^2}{{r_0^-}^2}    \right) + \left(1 - \frac{r_0^-}{4r_0^+}\right)^2 }\\
+        &\leq \frac{4}{3{r_0^-}} \sqrt{ \left( 1+ \frac{L_{r_0} ^2}{{r_0^-}^2}    \right) + \left(1 - \frac{r_0^-}{4r_0^+}\right)^2 }\\
+        &=\bar{\chi}_1,
+    \end{align*}
+    for $L_{r_0}$ the Lipschitz constant of $r_0(\theta)$.
+    Finally, we close the proof by employing equation~\eqref{eq:chioverrbound}, that is
+    \begin{align*}
+        \chi_2(\x)% &= \frac{\chi(\x)}{\r}\\
+        \leq  \frac{4}{{3r_0^-}} \left(1 - \frac{r_0^-}{4r_0^+}\right)
+        =\bar{\chi}_2.
+    \end{align*}
+\end{proof}

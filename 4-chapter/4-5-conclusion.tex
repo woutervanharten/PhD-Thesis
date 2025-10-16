@@ -1,0 +1,22 @@
+In this chapter, we have leveraged the general theory developed in Chapter~\ref{ch:exploiting-locality-in-polynomial-approximations} to derive convergence bounds for Taylor approximations for the parametric domain setting introduced in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}.
+In Section~\ref{sec:modelproblem}, we have discussed two mapping approaches: using an affine mollifier and a mapping defined through a harmonic extension problem.
+Then, presented the numerical results supporting the theoretical findings, together with their interpretation in Section~\ref{sec:numerical_taylor}.
+
+Analytically, the mollifier approach has an advantage over the harmonic mapping because we can establish pointwise bounds on the Jacobian matrix $\D\Phi$ by explicitly calculating it for star-shaped domains.
+This is in contrast to the harmonic extension, where we have shown similar bounds only for circular domains.
+However, intuitively, similar results are expected for other classes of star-shaped domains.
+
+In contrast to the analytical preference for the mollifier mapping, the harmonic mapping has significant numerical advantages over the first one.
+First, the harmonic mapping is such that the spectral norm of the Jacobian matrix $\D\Phi$ is relatively small compared to one for the mollifier mapping.
+Moreover, wavelets deep into the wavelet structure are such that the support of $\D\Phi_j$ is strongly localized near the domain boundary.
+Therefore, calculating the Taylor coefficients requires a fine mesh near the boundary of the computational domain to resolve the fine details in the small wavelets.
+The mesh can be kept rough on its interior to reduce the computational burden.
+
+Instead of calculating the transformation by solving a partial differential equation for each dimension separately, other PDE-based approaches to build the mapping act on all coordinates simultaneously.
+One example of such a mapping is defined through the linear elasticity equations~\cite{cizmas2008,dwight2009}, which can be interpreted as elastically stretching the nominal onto the parameterized domain.
+Elasticity equations offer even more control over the smoothing properties of the transformation by using piecewise constant material properties.
+Although this thesis focuses on star-shaped domains, a significant advantage of PDE-based mapping constructions is their geometrical flexibility, including possible extensions to non-star-shaped domains.
+
+The theoretical convergence rate obtained in Theorem~\ref{thm:lpsummability} is supported by numerical results for the parametric domain problem~\eqref{eq:variational_formulation_y_poission}.
+The numerical experiments show that both the choice of basis expansion and the mapping approach significantly impact the observed convergence rate.
+Moreover, the critical role of the mesh in the process showcases the possible benefits of parameter-adapted meshes, where the mesh is refined adaptively, depending on the value of the parameter.

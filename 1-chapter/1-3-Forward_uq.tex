@@ -1,0 +1,186 @@
+We are concerned with forward uncertainty quantification, i.e., the propagation of uncertainty through a computational model.
+As we have discussed above, we will consider models where the uncertainty enters the model through a parameter $\y\in Y$.
+For the PDE problems introduced in Section~\ref{sec:uq-for-pde-problems}, this means computing the statistical properties of $u(\y, \cdot)$.
+To get a good understanding of the propagated uncertainty, we can take one of a few approaches.
+
+For simple linear models, where the solution depends linearly on the parameter, we can write down the distribution of $u(\y, \cdot)$ directly.
+This technique is very compelling if applicable, and we will discuss it further in Section~\ref{subsec:direct-evaluation}.
+Alternatively, we could try to fully characterize the uncertainty by building a \emph{surrogate model} $\hat{u}(\y, \cdot)$ that approximates $u(\y, \cdot)$.
+We discuss this approach in Section~\ref{subsec:spectral-methods}.
+Finally, we could notice that we are mostly interested in the mean of $u(\y,\cdot)$, or higher order moments.
+All these computations require integrating over the parameter domain $Y$.
+Therefore, we can employ integration techniques to compute these integrals directly, and this approach is discussed further in Section~\ref{subsec:computing-integrals}.
+
+\subsection{Direct evaluation}\label{subsec:direct-evaluation}
+If the model is simple and the solution is linearly dependent on the random parameter, we might directly evaluate the uncertainty in the quantity of interest.
+We will illustrate this with an example using the Helmholtz equation introduced in Section~\ref{subsec:helmholtz-equation}.
+\begin{example}[Helmholtz scattering with uncertain amplitude]\label{ex:helmholtzdirectex}
+We consider the exterior Helmholtz scattering problem~\eqref{eq:parameterized_helmholtz_pde} introduced in Section~\ref{subsec:helmholtz-equation} with an incoming wave along the first spatial dimension:
+\begin{equation}
+    u_{in}(\x)=\mathcal{A}e^{ik x_{1}},\label{eq:uinexdef}
+\end{equation}
+where $\mathcal{A}\sim U\left[ (a, b) \right]$ is the uncertain amplitude and $k$ the wave number.
+Moreover, we consider constant coefficients $A(\cdot)=I_d$ and $n(\cdot)=1$ and approximate the variational form~\eqref{eq:varformhelmholtz} using the finite element method introduced in the previous section.
+Hence, we arrive at a linear system of the form
+\begin{equation}
+    \mathbb{A}\bm{u}=\mathcal{A}\bm{b}.\label{eq:helmholtzdirectex}
+\end{equation}
+This is solved by
+\begin{equation*}
+    \bm{u}=\mathcal{A}\mathbb{A}^{-1}\bm{b},
+\end{equation*}
+which can be evaluated explicitly in terms of the uncertain amplitude $\mathcal{A}$.
+\end{example}
+
+From this example, it is evident that direct evaluation can be a very powerful technique.
+However, slight changes in the problem can make this direct evaluation completely inviable, as we will see in the next example, where the same model does not reduce similarly.
+\begin{example}[Helmholtz scattering with uncertain frequency]\label{ex:helmholtznonlin}
+We consider the setting of Example~\ref{ex:helmholtzdirectex}.
+However, instead of an uncertain amplitude, we consider an uncertain frequency $k$.
+Now, we rewrite equation~\eqref{eq:helmholtzdirectex} as
+\begin{equation*}
+    \left( \mathbb{A}_1 - k^2\mathbb{A}_{2} - k \mathbb{A}_3 \right)\bm{u}=\bm{b}(k).\label{eq:helmholtzdirectexnonlin}
+\end{equation*}
+where the matrices $\mathbb{A}_i$ follow from the variational form~\eqref{eq:varformhelmholtz}.
+Moreover, the right-hand side vector $\bm{b}(k)$ depends nonlinearly on the frequency $k$ through both the $ik$ term in~\eqref{eq:varformhelmholtz} and the incoming wave $u_{in}$.
+Clearly, we lose all linearity properties we relied on in Example~\ref{ex:helmholtzdirectex}, and we cannot evaluate the quantity of interest directly.
+\end{example}
+Hence, when we can propagate the uncertainty directly, we will.
+However, this method is not generally applicable, as it works only in a few very special situations.
+Therefore, we might approximate the forward map using surrogate methods, which we will discuss in the next section.
+
+\subsection{Surrogate modeling}\label{subsec:surrogate-modeling}
+Whenever we cannot compute the distribution of $u(\y,\cdot)$ directly, we can approximate it.
+We call these approximations \emph{surrogate models}, as they are surrogates for the full solution map $\y\mapsto u(\y, \cdot)$.
+There are many ways to devise surrogate models, and the most suitable approach depends on the application at hand.
+In the remainder of this section, we will discuss a curated selection.
+We will focus on the dependence on the parametric coordinate $\y$, but similar approaches can be taken with respect to the spatial coordinate $\x$.
+
+\subsubsection{Stochastic Galerkin}\label{subsec:spectral-methods}
+The first type of surrogate model we will discuss are the \emph{spectral methods}, in which we consider spectral expansions of the solution $u(\y,\cdot)$ of the form:
+\begin{equation*}
+    u(\y, \x) = \sum_{k\in\mathbb{N}_0} u_k(\x) \Psi_k(\y),
+\end{equation*}
+where $\left\{ \Psi_k \right\}_{k\in\mathbb{N}_0}$ is some orthogonal basis for the weighted function space $L^2_\mu(Y)$, and $u_k$ elements of the solution space containing $u(\y, \cdot)$ for almost every $\y\in Y$.
+By standard Hilbert space orthogonal projection, we know that the modes $u_k$ are given by
+\begin{equation*}
+    u_k(\cdot)=\frac{\left< u(\y,\cdot), \Psi_k(\y) \right>_{L^2_\mu(Y)}}{\left<  \Psi_k(\y),\Psi_k(\y)\right>_{L^2_\mu(Y)} },
+\end{equation*}
+where the inner product $\left< \cdot, \cdot \right>_{L^2_\mu(Y)}$ is the standard inner product of $L^2_\mu(Y)$.
+In practice, the choice of basis $\Psi$ is greatly dependent on the probability measure under consideration, as the orthogonality of the basis functions is dependent on it~\cite[Chapter~8]{sullivan2015}.
+In the case of uniformly distributed random variables, the Legendre polynomials form an orthogonal basis, and Hermite polynomials in the case of normally distributed parameters.
+Finding the modes can be challenging and a common method to compute them is Stochastic Galerkin.
+
+As the name suggests, the Stochastic Galerkin method treats the parameter domain similar to the finite element method discussed briefly in Section~\ref{subsec:finite-element-approximations}.
+Heuristically, the approach is multiplying the differential equation by the basis functions $\Psi_k$ and integrating over the parameter space, resulting in a large single linear system.
+This large linear system is usually formally similar to the original deterministic equation but coupled together in a non-trivial way~\cite[Chapter~12]{sullivan2015}.
+
+These tensored Galerkin techniques are efficient and accurate in low-dimensional parameter spaces because they minimize the stochastic residual.
+Moreover, the method is mathematically very attractive as it is a natural extension of the Galerkin methods commonly used for deterministic PDEs.
+However, when the parameter dimension increases, the size of the computational problem increases exponentially.
+These computational consequences are collected under the umbrella of \emph{the curse of dimensionality} and occur in (almost) all numerical methods for high-dimensional UQ\@.
+It can be mitigated partly by using, for example, sparse grid techniques~\cite[Chapter~11]{smith2024}.
+
+Moreover, the large coupled linear systems make Stochastic Galerkin more involved to use when evaluating the deterministic equations, as it is expensive or slow to solve, or otherwise difficult to obtain.
+This difficulty is because the Stochastic Galerkin method presented is an \emph{intrusive} method.
+It requires complete access to the computational model, which cannot always be assumed to be available.
+In contrast to intrusive methods, \emph{non-intrusive} methods, which assume that the forward model is a black box that cannot be modified or examined, can be considered for this spectral approach~\cite[Chapter~13]{sullivan2015}.
+
+\subsubsection{Stochastic Collocation}
+In addition to the Galerkin point of view we have taken thus far, we can consider a surrogate model as interpolation on the parameter space $Y$, for which we can plunder the interpolation toolbox.
+Here, the idea is to select a set of \emph{collocation points} $\y_i\in Y$ and find a surrogate model that satisfies the forward model exactly at these collocation points.
+
+In one parameter dimension, i.e., whenever $Y\subset\mathbb{R}$, we define the surrogate by
+\begin{equation}
+    \tilde{u}(y,\cdot) \coloneqq \sum_{i=1}^N u(y_i, \cdot) l_i(y)\label{eq:lagrageinterp},
+\end{equation}
+where $\y\in Y$, $u(y_i, \cdot)$ is the computed solution at the collocation point $y_i\in Y$ and $l_i(y)$ is the corresponding \emph{Lagrange basis polynomial}:
+\begin{equation*}
+    l_i(y)\coloneqq\prod_{j\neq i}\frac{y-y_j}{y_i-y_j}.
+\end{equation*}
+One often chooses the collocation points $y_i$ to be nested (to allow for refinement) and to avert Runge oscillations; common choices include Clenshaw-Curtis or Leja nodes.
+See, for example,~\cite{trefethen2019}.
+
+We extend this approach to multiple parameter dimensions by considering tensorized products of one-dimensional nodes and their corresponding Lagrange polynomials~\cite{xiu2015}.
+However, as with the Stochastic Galerkin approach, we re-encounter the curse of dimensionality as the number of interpolation points grows exponentially with dimension of the parameter domain.
+The curse can be partly treated using sparse grid approaches, considering only a part of the full tensor space of interpolation points.
+For a more in-depth overview of sparse grids, we refer the reader to~\cite{bungartz2004}.
+
+
+\subsubsection{Gaussian Process Regression}
+Up to now, we have taken only deterministic approaches, assuming that measurements are error-free and that the interpolant is a deterministic function of the values at the nodes.
+However, these assumptions are not universally accurate, as we may incur modeling errors or non-reproducible experiments.
+A possibility is to take a Bayesian approach, and we briefly discuss \emph{Gaussian process regression} or \emph{kriging}.
+For a more thorough introduction to Gaussian processes and Gaussian process regression, we refer the reader to~\cite{rasmussen2000}.
+
+The underlying strategy of Gaussian process regression is to model the output as a Gaussian random field.
+To do so, we model the prior information of the output function as a Gaussian random field, with a prior mean and covariance kernel representing the prior information.
+Then, we obtain values at certain training points, on which we condition the Gaussian process.
+We can then express this posterior Gaussian process in terms of a conditioned mean and conditioned covariance kernel.
+The conditioned mean and kernel can be obtained by direct computations, simplifying the approach~\cite{rasmussen2000}.
+Further structure can be forced by using, for example, a gray-box approach~\cite{astudillo2022}.
+
+Gaussian process regression is a valuable surrogate in low-dimensional solution spaces with a limited number of training nodes.
+Moreover, the Gaussian process provides us with an uncertainty estimate, which goes beyond the previously mentioned surrogate models.
+Due to this uncertainty estimate, one might refer to the posterior Gaussian process as an \emph{emulator}.
+Gaussian processes get less attractive when the number of training nodes increases as the computational and memory requirements scale as $\mathcal{O}(n^3)$ and $\mathcal{O}(n^2)$~\cite{solin2020}.
+Moreover, approximating solutions in a Hilbert space with a Gaussian process is not directly feasible.
+We can mitigate the main dimensionality issues using, for example, dimension reduction techniques~\cite{benner2015}.
+
+\subsubsection{Other approaches}
+In recent years, the development of neural network approaches to surrogate modeling has taken off.
+The general idea is to use the expressive power of (\emph{deep}) \emph{neural networks} to train a surrogate model efficiently.
+This field is still rapidly expanding; examples of neural network approaches can be found in~\cite{lu2021,schwab2019}.
+
+\subsection{Numerical integration}\label{subsec:computing-integrals}
+In practical applications, we are often interested in statistical properties of the solution such as the mean or higher-order moments.
+Therefore, an important class of UQ methods involves estimating these quantities directly, which take the form of integrals over the parameter space.
+In this section, we will consider \emph{quadrature} rules of the form
+\begin{equation}
+    \int_Y u(\y, \cdot) \dy \approx \sum_{i=1}^N w_i u(\yi,\cdot)\label{eq:quadraturesum},
+\end{equation}
+where the nodes $\y_1,\ldots,\y_N\in Y$ and the weights $w_1,\ldots, w_N \in \mathbb{R}$ are chosen to approximate the integral.
+
+We discuss two approaches: a deterministic approach using conventional quadrature rules and a stochastic approach using the Monte Carlo method.
+\subsubsection{Quadrature rules}
+We start in one parameter dimension, with $Y=[a,b]\subset \mathbb{R}$, where we approximate the $y$ dependence using polynomial approximations.
+In the first order, we estimate the integral~\eqref{eq:quadraturesum} with the \emph{midpoint rule} by setting $y_1=(b-a)/2$ at the center of $Y$, and the single weight $w_1 = (b-a)$ the size of $Y$.
+A simple improvement comes with the \emph{trapezoidal rule} where we take two nodes $y_1=a$ and $y_2=b$ with weights $w_1=w_2=(b-a)/2$ such that we model the $y$ dependence linearly, reducing the error by a factor $\frac{1}{2}$.
+These examples of \emph{polynomial interpolation formulae} can be extended to any number of arbitrarily placed nodes $y_1,\ldots,y_N\in $ by considering the Lagrange polynomials from equation~\eqref{eq:lagrageinterp}.
+Indeed, we have
+\begin{align*}
+    \int_Y u(y,\cdot) \d y &\approx \int_Y \sum_{i=1}^N u(\cdot,y_i) l_i(y) \d y\\
+    &= \sum_{i=1}^N u(\cdot,y_i) \int_Y l_i(y) \d y,
+\end{align*}
+such that we recover the weights $w_i=\int_Y l_i(y) \d y$.
+Again, we must be careful when choosing the right node locations to avoid unwanted Runge oscillations.
+
+Considering multidimensional parameter spaces $Y\subset \mathbb{R}^N$, we can tensorize the one-dimensional quadrature rules outlined above.
+However, the curse of dimensionality will manifest once the parameter dimension grows.
+This is because the number of nodes in the tensorized space grows exponentially with the parameter dimension.
+We might consider using interpolants of different polynomial order for different dimensions, but this approach has its limits.
+Similarly to the stochastic collocation methods, we can apply sparse quadrature formulas of the Smolyak type~\cite{bungartz2004}, which performs especially well when the quadrature nodes are \emph{nested}, as the nodes can be re-used across levels.
+For example, this is the case with Clenshaw-Curtis when doubling the number of nodes.
+
+\subsubsection{Monte Carlo methods}
+Although high-order deterministic quadrature formulas have high convergence properties in low dimensions when the integrand is smooth, the curse of dimensionality will eventually manifest.
+Therefore, we consider a random approach, the \emph{Monte Carlo method}.
+Taking its name from the famous casino in Monaco, the classic Monte Carlo method relies on many independent and identically distributed random samples $\yi\in Y$~\cite{teckentrup2013}.
+The samples are drawn from a distribution defined by the probability measure on $Y$.
+In the case of the integral in equation~\eqref{eq:quadraturesum}, we would sample from the uniform distribution over $Y$.
+The Monte Carlo method relies on the law of large numbers to estimate the integral by averaging:
+\begin{equation*}
+    \int_Y u(\y,\cdot) \dy \approx \frac{1}{N} \sum_{i=1}^N u(\y_i,\cdot),
+\end{equation*}
+which fits in the framework~\eqref{eq:quadraturesum} but with randomly distributed nodes $\yi$ and weights $w_i=\frac{1}{N}$.
+
+Although the vanilla Monte Carlo method might seem straightforward, difficulties might arise in the premise of independent and identically distributed random samples $\yi$.
+Sampling accurately from a (possibly complicated or unnormalized) probability distribution can be difficult, and much scientific attention has been given to approaches such as \emph{rejection sampling}, \emph{importance sampling}, or \emph{Markov chain Monte Carlo}~\cite{barbu2020}.
+
+The key property of the Monte Carlo method is its convergence rate, which is $\frac{\sigma}{\sqrt {N}}$, independent of the parameter dimension but with fixed variance $\sigma=\text{Var}(u(Y))$.
+As this convergence rate is rather rigid, much attention has been given to \emph{variance reduction techniques} aiming to reduce the reference variance $\sigma$.
+Examples of such methods are \emph{stratified sampling}, \emph{conditioning}, or \emph{control variates}~\cite{barbu2020}.
+Related to control variates are multilevel methods, which exploit different levels with varying computational costs and variances.
+By leveraging these different levels, one can further improve the total variance and computational load~\cite {giles2015}.
+
+Improvements in the convergence rate can be obtained by considering \emph{Quasi Monte Carlo} methods~\cite{sobol1990}, in which the samples are taken deterministically from, for example, Sobol or Halton sequences.

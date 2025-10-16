@@ -1,0 +1,22 @@
+Next to the mollifier mapping discussed in the previous section, we introduce the harmonic extension~\cite{li2001,xiu2006} to map any Lipschitz domain $D$ to ${D}(\y)$.
+This map is defined implicitly through one Laplace equation per spatial dimension.
+For spatial dimension $d=2$, it is defined as the solution to:
+\begin{align}
+    \begin{cases}
+        \Delta \Phi^\kappa = 0, &\text{ in }D,\\
+        \Phi^\kappa = \phi^\kappa(\theta),  &\text{ on }\partial D,
+    \end{cases} \label{eq:harmonicext}
+\end{align}
+where $\phi^\kappa(\theta) \coloneqq f_\kappa(\theta) r(\y; \theta)$ for $\kappa \in \{x, y\}$ and $f_x(\cdot) = \cos(\cdot), f_y(\cdot)=\sin(\cdot)$.
+By linearity of the Laplace equation, we can conclude that, for $r(\y;\theta)$ given by~\eqref{eq:rdef}, the mapping $\Phi$ satisfies the decomposition~\eqref{eq:phidefpois}.
+Moreover, we can conclude that each partial mapping $\Phi_j=[\Phi_j^x, \Phi_j^y]^\top$ solves the harmonic equation with $\Phi_j^\kappa = f_\kappa(\theta) \psi_j(\theta)$ as Dirichlet boundary condition, with $\phi_j^\kappa$ defined accordingly.
+
+The main advantage of this approach is that it results in mappings with great smoothness properties.
+The oscillatory behavior of the boundary expansion will be resolved near the boundary, removing the need for fine meshing at the center of the domain.
+These improvements come at a cost, as we have to solve two partial differential equations for each mapping.
+However, in practical applications, we make use of the linearity in~\eqref{eq:phidefpois} to precompute the partial transformations a priori and assemble each transformation separately, limiting the computational burden.
+Moreover, by defining the mappings implicitly through an auxiliary equation, we gain difficulty in the theoretical analysis of the mapping.
+
+Instead of the Laplace equation, we could consider different linear partial differential equations to define the mapping.
+High numerical accuracy has been obtained with the elasticity equations~\cite{cizmas2008,dwight2009}, which offer even more control over the smoothing properties of the transformation by utilizing piecewise constant material properties~\cite{stein2003}.
+However, rigorous theoretical analysis of the mapping will become even more complex when the equations become more involved.

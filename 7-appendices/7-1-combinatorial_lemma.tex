@@ -1,0 +1,57 @@
+In the proof of Lemma~\ref{thm:Afbound}, we expand the derivatives in $|\A |_{2,2}$.
+When doing so, we need to apply the general Leibniz rule several times, and this will result in sums of the type
+\begin{align*}
+	\sum_{\nu^{(1)}+\cdots+\nu^{(N)}=\mu} \binom{\mu }{ \nu^{(1)},\ldots,\nu^{(N)}}\prod_{i=1}^N |\nu^{(i)}|!.
+\end{align*}
+To handle these sums, we introduce a combinatorial lemma.
+
+\begin{lemma} \label{lem:multinomialsum}
+	Let $\mu$ be a multi index with finite support and $N\in\mathbb{N}$.
+	Now, we have:
+	\begin{equation*}
+		\sum_{\nu^{(1)}+\cdots+\nu^{(N)}=\mu} \binom{\mu }{ \nu^{(1)},\ldots,\nu^{(N)}}\prod_{i=1}^N |\nu^{(i)}|! = \frac{(\abs{\mu}+(N-1))!}{(N-1)!},
+	\end{equation*}
+	where $\binom{\mu }{ \nu^{(1)},\ldots,\nu^{(N)}}$ is the multinomial coefficient.
+\end{lemma}
+
+
+\begin{proof}
+	Let $n$ be the largest number such that $\mu_n>0$.
+	Now, let $S$ be a stack of cards in $n$ suits together with $N-1$ indistinguishable jokers.
+	For each suit $i$, we have $\mu_i$ cards per suit.
+	A natural question to ask is: `In how many ways can deck $S$ be ordered?'
+	
+	First, we will calculate this directly.
+	We can order $\abs{\mu}+(N-1)$ cards in $(\abs{\mu}+(N-1))!$ ways.
+	To account for the $N-1$ identical jokers, we divide by $(N-1)!$, and we end up with
+	\begin{equation*}
+		\# \text{orderings of }S = \frac{(\abs{\mu}+(N-1))!}{(N-1)!}.
+	\end{equation*}
+	
+	Next, we calculate the number of orderings by summing over the number of cards per suit between the jokers.
+	To this extent, we denote by $\nu_i^{(j)}$ the number of cards with suit $i$ between jokers $j-1$ and $j$.
+	To account for all cards in the deck, we require $\sum_{j=1}^N \nu^{(j)}=\mu$.
+	 
+	For each suit $i$, we can divide the $\mu_i$ cards into the $(\nu_i^{(j)})_{j=1}^N$ sections in
+	\begin{equation*}
+		\binom{\mu_i }{ \nu_i^{(1)},\ldots,\nu_i^{(N)}}
+	\end{equation*}
+	ways.
+	Then, we linearly order all cards before the first joker in $(\nu_1^{(1)}+\cdots + \nu_n^{(1)})!=|\nu^{(1)}|!$ ways, the cards between the first and the second joker in $|\nu^{(2)}|!$ ways, etcetera.
+	Combining this, we can order all these card selections in $\prod_{j=1}^N |\nu^{(j)}|!$ ways.
+	We then we get
+	\begin{align*}
+		&\binom{\mu_1 }{ \nu_1^{(1)},\ldots,\nu_1^{(N)}}\ldots \binom{\mu_n }{ \nu_n^{(1)},\ldots,\nu_n^{(N)}} \cdot |\nu^{(1)}|! \ldots |\nu^{(n)}|!\\
+		&=\binom{\mu }{ \nu^{(1)},\ldots,\nu^{(N)}}\prod_{i=1}^N |\nu^{(i)}|!
+	\end{align*}
+	Finally, by summing over all possible $N$-tuples such that $\nu^{(1)}+\cdots+\nu^{(N)} = \mu$, we get
+	\begin{equation*}
+		\# \text{orderings of }S = \sum_{\nu^{(1)}+\cdots+\nu^{(N)}=\mu} \binom{\mu }{ \nu^{(1)},\cdots,\nu^{(N)}}\prod_{i=1}^N |\nu^{(i)}|!,
+	\end{equation*}
+	which shows the desired result.
+\end{proof}
+
+%\section{Proof of Lemma~\ref{lem:Dphibound}}
+%\label{pf:dphibound}
+%Here, we present the proof of Lemma~\ref{lem:Dphibound}.
+

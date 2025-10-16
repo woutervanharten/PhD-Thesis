@@ -1,0 +1,14 @@
+In the application to parametric domains, we adopt the mapping approach outlined in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}, leading to a problem that fits within the framework~\eqref{eq:pde}.
+This involves transforming the PDE on the parameterized domain to a parameterized PDE on a nominal (reference) domain.
+The smoothness of the solution on the reference configuration with respect to the parameter has been analyzed in~\cite{castrillon-candas2016,harbrecht2016,multerer2019} for the linear elliptic equation.
+Smoothness has also been analyzed for the Helmholtz transmission problem~\cite{hiptmair2018, hiptmair2024}, the linear parabolic equation~\cite{castrillon-candas2021}, the stationary Navier-Stokes equations~\cite{cohen2018}, and Maxwell's equations in frequency domain~\cite{jerez-hanckes2017}.
+
+While all these works prove smoothness in terms of the global properties of the parametric boundary, in the spirit of the general results in~\cite{zhou2014, chkifa2015}, the present work relies on \textsl{pointwise} properties, in the spirit of~\cite{bachmayr2017,bachmayr2017a,dung2022,zech2018}.
+This shows that parametrizing the boundary, or more generally, the domain mapping, using functions with localized supports leads to higher convergence rates for surrogates based on truncated Taylor expansions.
+We highlight that, in the case of parametric interface problems, one might also be interested in the solution for the physical, rather than the nominal, configuration.
+In that case, the dependence of the solution on the parameter is not smooth~\cite{motamed2013,scarabosio2017,scarabosio2022}.
+
+When discussing the smoothness of the solution on the nominal configuration, we analyze theoretically and compare numerically two approaches to construct a domain mapping starting from the boundary parametrization, namely an explicit expression using a mollifier and the harmonic extension~\cite{li2001,xiu2006}, as we introduced in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}.
+The latter shows better localization properties in the numerical results and is better suited for complex geometries.
+We analyze it as a prototype for other PDE-based methods, such as those based on elasticity equations; see, for instance,~\cite{cizmas2008,dwight2009}.
+Another possibility, acting on the discretized PDE, is to use isogeometric analysis (IGA), possibly with boundary elements~\cite{dolz2022,dolz2023}.

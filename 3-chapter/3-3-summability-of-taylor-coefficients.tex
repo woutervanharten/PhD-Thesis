@@ -1,0 +1,377 @@
+In problem~\eqref{eq:pde} we are concerned with the case when the solution map $\y \mapsto u(\y)$ from $Y$ to $V\coloneqq H_0^1(D)$ is analytic, as better specified below.
+Although this may seem like a relatively strong assumption, it is actually fulfilled in many relevant situations~\cite{chkifa2015}.
+In this analytic setting, we can introduce a polynomial expansion mapping $\y$ to $u(\y)$, and in particular we can use the Taylor series
+\begin{equation}
+{u}(\y) = \sum_{\mu\in\mathcal{F}} t_\mu \y^\mu, \label{eq:tayloreq}
+\end{equation}
+where $t_\mu \in V$ are the Taylor coefficients, defined by
+\begin{equation}
+	t_\mu = \frac{1}{\mu!}\partial^\mu {u}(\bm{0}).\label{eq:taylordef}
+\end{equation}
+Moreover, $\mathcal{F}$ is the set of all finitely supported multi-indices:
+\begin{align*}
+	\mathcal{F}=\{\mu=(\mu_1,\mu_2,\mu_3,\dots), \mu_i \in \mathbb{N}_0, \text{supp}(\mu) < \infty \},
+\end{align*}
+with $\mathbb{N}_0\coloneqq\mathbb{N}\cup \left\{0\right\}$.
+The support of a multi-index $\mu$ is defined by $\text{supp}(\mu) \coloneqq \max\{k \in \mathbb{N}: \mu_k > 0\}$.
+In~\eqref{eq:tayloreq}, $\y^\mu = \prod_{j\geq 1}y_j^{\mu_j}$, and in~\eqref{eq:taylordef} $\mu! = \prod_{j \geq 1} \mu_j!$.
+Other mathematical operations can be extended to multi-indices in a similar manner~\cite{cohen2010}.
+For example, we have the binomial coefficient $\binom{\mu }{ \nu} = \prod_{j \geq 1}\binom{\mu_j }{ \nu_j}$; ordering $\mu \leq \nu \iff \mu_j \leq  \nu_j $ for all $ j \in \mathbb{N}$; strict ordering $\mu < \nu \iff \mu \leq  \nu$ and $\mu \neq \nu$; and the order $|\mu| = \sum_{j \geq 1} \mu_j$.
+
+A surrogate for the parameter-to-solution map can be obtained by selecting, in~\eqref{eq:tayloreq}, a finite-dimensional subset of $\mathcal{F}$ corresponding to the Taylor coefficients with the largest $V$-norm.
+The convergence rate of such surrogate can be derived using Stechkin's lemma, as we will also recall in Corollary~\ref{cor:stechkin}, which relies on the $\ell^p$-summability of $(\|t_\nu\|_{V})_{\nu \in \mathcal{F}}$.
+
+Following~\cite{bachmayr2017a}, to show $\ell^p$-summability of
+\begin{align}
+(\|t_\mu\|_{V})_{\mu \in \mathcal{F}}, \label{eq:taylorseq}
+\end{align}
+we will first establish a variational formulation for the Taylor coefficients in Section~\ref{sec:taylor}.
+
+With this formulation at hand, in Section~\ref{sec:weightedl2}, we will show the summability of
+\begin{equation}
+(\rho^{2\mu}\|t_\mu\|_{V}^2)_{\mu\in \mathcal{F}}, \label{eq:weightedtaylorseq}
+\end{equation}
+with a positive sequence $\rho=(\rho_j)_{j \geq 1}$ and $\rho^{2\mu}$ defined elementwise, similarly to $\y^\mu$.
+From this weighted $\ell^2$-summability, we will conclude the $\ell^p$-summability of $(\|t_\mu\|_{V})_{\mu\in \mathcal{F}}$ in Section~\ref{sec:ellpsum}.
+
+
+% ==================  Taylor
+\subsection{Variational formulation for Taylor coefficients}
+\label{sec:taylor}
+Before we can derive a variational formulation for the derivatives of ${u}(\y)$ with respect to $\y$, we need to ask for analyticity and boundedness of the diffusion coefficient and the right-hand side of equation~\eqref{eq:pde}.
+We do so in the following assumption:
+\begin{assumption} \label{ass:afanalytic}
+The functions $A(\y;\bm{x})$ and $F(\y;\bm{x})$ in~\eqref{eq:pde} are such that:
+\begin{enumerate}[(a)]
+	\item the quantities $\|A(\y, \cdot)\|_{L^\infty(D)}$ and $\|F(\y, \cdot)\|_{L^2(D)}$ have $\y$-in\-de\-pen\-dent upper bounds, for $\y \in Y$;
+	\item they are analytic as maps from $\mathcal{O}\coloneqq\bigotimes_{j\geq 1}\mathcal{O}_j$ to $\left(L^\infty(D)\right)^{d\times d}$ and $L^2(D)$, respectively, where each $\mathcal{O}_j\subset\mathbb{R}$ is an open interval containing $[-1,1]$;
+	\item there exists a constant $A_{\min}>0$ such that, for a.e. $\bm{x} \in D$ and all $\y\in \mathcal{O}$, $A_{\min}$ is a lower bound for the smallest singular value of $A(\y; \x)$.
+\end{enumerate}
+\end{assumption}
+Now, combining Assumption~\ref{ass:afanalytic}(a) with the Lax-Milgram lemma guarantees $u \in L^\infty(Y, V)$.
+Hence, the $L^\infty(Y, V)$ norm is appropriate to measure the error in polynomial surrogates.
+
+Now, we derive the variational formulation for the derivatives $\partial^\mu {u}(\y)$.
+First, we obtain an important lemma, giving us a variational formulation for the Taylor coefficients in~\eqref{eq:tayloreq}:
+\begin{lemma}
+	\label{col:taylorvar}
+	Let Assumption~\ref{ass:afanalytic} hold.
+	Then, for every $\mu \in \mathcal{F}$, the Taylor coefficient $t_\mu \in V$ defined in~\eqref{eq:taylordef} is the unique solution to
+	\begin{align}
+		\int_{{D}}  A(\bm{0}) \nabla t_{\mu} \cdot \nabla v \dx = \\ -\sum_{\nu\in S_\mu} \frac{1}{(\mu - \nu)!} \int_{{D}} &\partial^{\mu - \nu} {A}(\bm{0}) \nabla t_\nu  \cdot \nabla v \dx + \frac{1}{\mu!} \int_{{D}} \partial^\mu {F}(\bm{0})  v \dx, \nonumber \\
+		&\text{ for all } v \in V, \label{eq:tayorweakform}
+	\end{align}
+	with $S_\mu = \{\nu \in \mathcal{F} : \nu < \mu\}$.
+\end{lemma}
+\begin{proof}
+	Thanks to Assumption~\ref{ass:afanalytic}, for $e_j=(0, \ldots, 0, 1, 0, \ldots )\in\mathcal{F}$ and every $\y \in Y$ and $h\in\mathbb{R}$ the quotient $\frac{u(\y+he_j)-u(\y)}{h}\in V$ is well-defined, for $|h|$ small enough.
+	By argumentations similar to those in~\cite{cohen2010}, passing to the limit $|h|\rightarrow 0$, one can show that the derivative $\partial^{e_j} u(\y) \in V$ is well-defined as the unique solution to the variational formulation
+	\begin{align}
+		&\int_{{D}} {A}(\bm{y}) \nabla \partial^{e_j}{u}(\bm{y}) \cdot\nabla v \dx = L_0(v), \quad \text{ for all } v \in V,\label{eq:singleder}
+	\end{align}
+	with
+	\begin{align}
+		L_0 (v)= -\int_{{D}} \partial^{e_j}{A}(\bm{y}) \nabla {u}(\bm{y})\cdot\nabla v\dx + \int_{{D}}\partial^{e_j} {F}(\bm{y}) v\dx.
+	\end{align}
+	By repeated application, we arrive at the variational formulation for the general derivative:
+	\begin{align}
+		\int_{{D}}  {A}(\bm{y}) \nabla\partial^{\mu} u(\bm{y})\cdot \nabla v \dx = L(v) ,\nonumber \quad \text{ for all } v \in V, \\
+		L(v) =  -\sum_{\nu\in S_\mu} \ch{\mu}{\nu} \int_{{D}} \partial^{\mu - \nu} {A}(\bm{y}) \nabla \partial^{\nu} u(\bm{y}) \cdot \nabla v \dx + \int_{{D}}  &\partial^\mu {F}(\bm{y})v \dx. \label{eq:gender}
+	\end{align}
+	Equation~\eqref{eq:tayorweakform} is then obtained by evaluating the formulation above at $\y=\bm{0}$ and dividing both sides by $\mu!$.
+	%Testing with $t_\mu = \frac{1}{\mu!} \partial^\mu u(\bm{0}) \in V$ leads to \eqref{eq:tayorenergyest}.
+\end{proof}
+With these results in our toolbox, we are interested in the convergence properties of the Taylor coefficients~\eqref{eq:taylorseq}.
+The goal of the next section is to show that we have summability of the weighted sequence~\eqref{eq:weightedtaylorseq}.
+
+
+% ================  Weighted summability section
+\subsection{Weighted summability of Taylor coefficients}
+\label{sec:weightedl2}
+The weighted $\ell^2$-summability of the Taylor coefficients is given by Theorem~\ref{thm:l2summability}, which we will prove in the rest of this section.
+We note that differently from Lemma~\ref{col:taylorvar}, where we were only concerned with the existence of the Taylor coefficients, we need restrictions on the growth of the derivatives of the diffusion coefficient and right-hand side with respect to the parameter to obtain the bounds required for the weighted summability.
+\begin{theorem}[Weighted $\ell^2$-summability]\label{thm:l2summability}
+Let Assumption~\ref{ass:afanalytic} hold and let there exist a positive sequence $(\rho_j)_{j\geq 1}$ and $0<\Kt<1$ such that
+\begin{equation}
+	\brhosum \leq \Kb,  \label{eq:Kbassumption}
+\end{equation}
+where the function sequence $(b_j(\x))_{j \geq 1}$ is such that, for a.e. $\x\in D$, $b_j(\x)\geq 0$  and the derivatives of $A$ and $F$ are bounded by
+\begin{equation*}
+	|\partial^\mu A(\bm{0},\x)|_{2,2} \leq ((b_j(\x))_{j \geq 1})^\mu f_A(|\mu|),
+\end{equation*}
+and
+\begin{equation}
+	\left|\partial^\mu F(\bm{0},\x)\right| \leq ((b_j(\x))_{j \geq 1})^\mu f_F(|\mu|),\label{eq:AFder}
+\end{equation}
+for all $|\mu| > 0$.
+Here, $f_A,f_F:\mathbb{N} \to \mathbb{R}^+$ are such that the series
+\begin{align}
+	g_A(x)\coloneqq\sum_{n \geq 1} \frac{f_A(n)}{n!}x^n \label{eq:gAdef}
+\end{align}
+has a convergence radius $\rho_A$, and $\frac{f_F(n)}{n!}$ has a monotonic, non-decreasing majorant $f^*_F(n)$, such that the series
+\begin{align}
+	g_F(x)\coloneqq\sum_{n \geq 1} f^*_F(n)^2x^n \label{eq:gFdef}
+\end{align}
+has a convergence radius $\rho_F$.
+Moreover, let $\Kt$ be such that
+\begin{equation}
+	\Kt < \min\{\rho_A\rho_F, \rho_A\}, \label{eq:rhoArhoFass}
+\end{equation}
+and
+\begin{equation}
+	g_A(\Kt)  < A_{\min}. \label{eq:assKbKc}
+\end{equation}
+Then, we have
+\begin{equation}
+	\sum_{\mu \in \mathcal{F}} \rho^{2\mu} \anorm{t_\mu}^2 \leq B < \infty, \label{eq:weightedsumresult}
+\end{equation}
+for $B=B(\Kt, g_A, g_F, A_{\min}, D)$. %, where the dependence on the domain is a dependence on its size and on the constant in Poincar\'e inequality.
+\end{theorem}
+
+
+% ======================= Weighted \ell2 summability proof
+\begin{proof}
+	This proof follows the general ideas put forward in~\cite{bachmayr2017}, adapted with different intermediate bounds.
+	To aid our efforts, we define $\sigma_k$ as the weighted sum of all $k$-th order Taylor coefficients with positive weights $(\rho_j)_{j\geq 1}$, $k \geq 0$:
+	\begin{align}
+		\sigma_k \coloneqq \sum_{\mu \in \Lambda_k} \rho^{2\mu} \anorm{t_\mu}^2,
+	\end{align}
+	where $\Lambda_k\coloneqq\{\mu\in\mathcal{F}, \, |\mu| = k\}$.
+
+	For $\sigma_k$, $k \geq 0$, we have, by Lemma~\ref{col:taylorvar},
+	\begin{align}
+		\sigma_k &\leq \underbrace{ A_{\min}^{-1} \int_{{D}} \sum_{\mu \in \Lambda_k} \sum_{\nu \in S_\mu}     \frac{\rho^{2\mu}}{(\mu - \nu)!} \left|\A \nabla  t_\nu \right|   \abs{\nabla t_\mu} \dx}_{\coloneqq(\text{I})}   \nonumber\\&\qquad\qquad\qquad\qquad\qquad+ \underbrace{A_{\min}^{-1} \int_{{D}} \sum_{\mu \in \Lambda_k}  \frac{\rho^{2\mu}}{\mu!} |\partial^\mu {F}(\bm{0})||t_\mu| \dx}_{\coloneqq(\text{II})}.   \nonumber
+	\end{align}
+	First, we bound $(\text{I})$ with the help of the Cauchy-Schwarz inequality:
+	\begin{align}
+	(\text{I})%&=A_{\min}^{-1} \int_{{D}} \sum_{\mu \in \Lambda_k} \sum_{\nu \in S_\mu}     \frac{\rho^{2\mu}}{(\mu - \nu)!} \abs{\A \nabla  t_\nu}   \abs{\nabla t_\mu} \dx  \nonumber\\
+		&\leq A_{\min}^{-1} \int_{{D}} \sum_{\mu \in \Lambda_k}\sum_{\nu \in S_\mu}     \frac{\rho^{\mu - \nu}}{(\mu - \nu)!} |\A|_{2,2} \left( \rho^\nu\abs{\nabla  t_\nu} \right) \left( \rho^\mu \abs{\nabla t_\mu}\right) \dx \nonumber\\
+		&\leq A_{\min}^{-1} \int_{{D}} \sum_{\mu \in \Lambda_k} \left(\sum_{\nu \in S_\mu}   \varepsilon(\mu, \nu)  \left( \rho^\nu\abs{\nabla  t_\nu}\right) ^2\right)^{\frac{1}{2 }} \\&\qquad\qquad\qquad\qquad\qquad\qquad \left(\sum_{\nu \in S_\mu}    \varepsilon(\mu, \nu)  \left(\rho^\mu \abs{\nabla t_\mu}\right)^2\right)^{\frac{1}{2 }} \dx, \label{eq:firstCS}
+	\end{align}
+	with
+	\begin{equation*}
+		\varepsilon(\mu, \nu) \coloneqq \frac{\rho^{\mu - \nu}|\A|_{2,2}}{ (\mu - \nu)!}.
+	\end{equation*}
+	To bound $\sum_{\nu \in S_\mu} \varepsilon(\mu, \nu)$, we first define $S_{\mu, l} \coloneqq \{\nu \in S_\mu\,:\, \abs{\nu - \mu} = l \}$ for $l\geq 1$ and, using~\eqref{eq:AFder} (and omitting explicit $\x$-dependence), we estimate:
+	\begin{align}
+		\sum_{\nu \in S_{\mu, l}} \varepsilon(\mu, \nu) &= \sum_{\nu \in S_{\mu, l}} \frac{\rho^{\mu - \nu}|\A|_{2,2}}{ (\mu - \nu)!}\\
+		&\leq f_A(l) \sum_{\nu \in S_{\mu, l}} \frac{\rho^{\mu - \nu} ((b_j)_{j \geq 1})^{\mu - \nu} }{ (\mu - \nu)!} \nonumber\\
+		&=  \frac{f_A(l)}{l!} \left( \sum_{j \geq 1} \rho_j b_j     \right)^l  \\& \leq   \frac{f_A(l)}{l!} \Kt^l,\label{eq:enddouble}
+	\end{align}
+	where, in the last step, we have used equation~\eqref{eq:Kbassumption} in the assumptions.
+	From this, remembering that $\mu\in\Lambda_k$, we can bound the complete sum as
+	\begin{align}
+		\sum_{\nu \in S_{\mu}} \varepsilon(\mu, \nu) &= \sum_{l=1}^k \sum_{\nu \in S_{\mu, l}} \varepsilon(\mu, \nu)\\
+		&\leq  \sum_{l=1}^\infty \frac{f_A(l)}{l!} \Kb^l\\
+		&= g_A(\Kt)\\
+		&= \deltatilde A_{\min},   \label{eq:epsilonsumineq}
+	\end{align}
+	where $\deltatilde \coloneqq  \frac{g_A(\Kt)}{A_{\min}} < 1$ by~\eqref{eq:assKbKc}.
+	We insert estimate~\eqref{eq:epsilonsumineq} into equation~\eqref{eq:firstCS} and apply the Cauchy-Schwarz inequality to obtain
+	\begin{align}
+	(\text{I}) &\leq  \sqrt{ \deltatilde  A_{\min}^{-1}} \int_{{D}} \left(\sum_{\mu \in \Lambda_k}\sum_{\nu \in S_\mu}    \varepsilon(\mu, \nu)  \left( \rho^\nu\abs{\nabla  t_\nu}\right)^2 \right)^{\frac{1}{2 }}\\&\qquad\qquad\qquad\qquad\qquad\qquad\left( \sum_{\mu \in \Lambda_k} \left(\rho^\mu \abs{\nabla t_\mu}\right)^2\right)^{\frac{1}{2 }} \dx. \label{eq:secondCS}
+	\end{align}
+	In order to treat the first double sum, we introduce, with $\nu \in \Lambda_l$ for $l\leq k-1$ and $k \geq 1$, $R_{\nu, k} = \{\mu \in \Lambda_k\, :\, \nu \in S_{\mu}\}$, such that, analogously to the estimates for $S_{\mu, l}$,
+	\begin{align}
+		\sum_{\mu \in R_{\nu, k}} \varepsilon(\mu, \nu)
+		\leq \frac{f_A(k-l)}{(k-l)!}\Kb^{k-l}.\label{eq:secondepsineq}
+	\end{align}
+	Using inequality~\eqref{eq:secondepsineq} and equation~\eqref{eq:secondCS} leads to
+	\begin{align}
+	(\text{I})  &\leq \sqrt{\deltatilde  A_{\min}^{-1}} \int_{{D}} \left(\sum_{l=0}^{k-1}\frac{f_A(k-l)}{(k-l)!}\Kb^{k-l} \sum_{\nu \in \Lambda_l}   \left(\rho^\nu\abs{\nabla  t_\nu}\right)^2\right)^{\frac{1}{2}} \\&\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad \left(\sum_{\mu \in \Lambda_k}\left( \rho^\mu \abs{\nabla t_\mu}\right)^2\right)^{\frac{1}{2 }} \dx \nonumber\\
+	&\leq \sqrt{\deltatilde  A_{\min}^{-1}} \left(\sum_{l=0}^{k-1}\frac{f_A(k-l)}{(k-l)!}\Kb^{k-l} \sum_{\nu \in \Lambda_l} \int_{{D}} \left( \rho^\nu\abs{\nabla  t_\nu}\right)^2\dx \right)^{\frac{1}{2 }}\\&\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad \left(  \sum_{\mu \in \Lambda_k}\int_{{D}} \left( \rho^\mu \abs{\nabla t_\mu}\right)^2\dx\right)^{\frac{1}{2}} \nonumber\\
+	&=  \sqrt{\deltatilde  A_{\min}^{-1}} \left(\sum_{l=0}^{k-1}\frac{f_A(k-l)}{(k-l)!}\Kb^{k-l} \sigma_l \right)^{\frac{1}{2 }}  \sigma_k^{\frac{1}{2}}.\label{eq:Ibound}
+	\end{align}
+	The term $(\text{II})$ can by bounded via the Cauchy-Schwarz inequality and using~\eqref{eq:AFder} (and that $\lVert\,\cdot\,\rVert_{\ell^2}\leq\lVert\,\cdot\,\rVert_{\ell^1}$), obtaining
+	\begin{align}
+	(\text{II})
+		& \leq A_{\min}^{-1}\int_{{D}} \left(\sum_{\mu \in \Lambda_k} \left[ \frac{\rho^{\mu}}{\mu!} |\partial^\mu {F}(\bm{0})|\right]\right)\left(\sum_{\mu \in \Lambda_k}\rho^{2\mu}|t_\mu|^2 \right)^{\frac{1}{2}} \dx\nonumber\\
+		&\leq   A_{\min}^{-1}f^*_F(k) \Kb ^k  \int_{{D}}    \left(\sum_{\mu \in \Lambda_k}\rho^{2\mu}|t_\mu|^2 \right)^{\frac{1}{2}} \dx.  \nonumber
+	\end{align}
+	Finally, to complete the bound of (II), we apply the Cauchy-Schwarz and Poincar\'e inequalities, and we use the assumption on $f_F$, resulting in
+	\begin{align}
+	(\text{II}) &\leq  A_{\min}^{-1}f^*_F(k) \Kb^k |D|^{\frac{1}{2}} \Cpc  \left(\sum_{\mu \in \Lambda_k}\rho^{2\mu}\int_{{D}}|\nabla t_\mu|^2 \dx \right)^{\frac{1}{2}}\\
+	&\leq A_{\min}^{-1} f^*_F(k) \Kb^k   |D|^{\frac{1}{2}}   \Cpc   \sigma_k^{\frac{1}{2}},  \label{eq:IIbound}
+	\end{align}
+	where $C_p$ denotes the Poincar\'e constant, depending on the domain $D$.
+	Now, combining equations~\eqref{eq:Ibound} and~\eqref{eq:IIbound} yields
+	\begin{align}
+		\sigma_k &\leq    \Bigg(\sqrt{ \deltatilde  A_{\min}^{-1}}  \left( \sum_{l=0}^{k-1}\frac{f_A(k-l)}{(k-l)!}\Kb ^{k-l}  \sigma_l\right)^{\frac{1}{2}} \nonumber\\
+		&\qquad\qquad\qquad\qquad\qquad\qquad+  A_{\min}^{-1} f^*_F(k) \Kb^k   |D|^{\frac{1}{2}}   \Cpc     \Bigg)^2.  \label{eq:squaredsigmakbound}
+	\end{align}
+	To show the final part of the proof, we will bound $\sigma_k$, $k\geq 0$, by
+	\begin{equation}
+		\sigma_k \leq \Csigma (k+1) \delta^k f^*_F(k)^2,  \label{eq:sigmaineq}
+	\end{equation}
+	where $\Csigma \coloneqq \Upsilon  \max(\sigma_0, A_{\min}^{-2} |D|\Cpc^2)$ with  $\Upsilon\in\mathbb{R}$ such that
+	\begin{align}
+		\Upsilon \geq \max\left\{\frac{4\deltatilde }{\left(1-\deltatilde\right)^2}, 1\right\}, \label{eq:Nepsbound}
+	\end{align}
+	and where we choose $\delta$ such that $\frac{\Kt}{\rho_A} < \delta < \min\{\rho_F,1\}$,
+	the existence of such $\delta$ being ensured by the hypothesis~\eqref{eq:rhoArhoFass}.
+
+	We proceed by induction.
+	The base case for $k=0$ is shown by noting that $\sigma_0 \leq \Csigma$.
+	The inductive step is proven by the expansion of equation~\eqref{eq:squaredsigmakbound}.
+	For $k\geq 1$:
+	\begin{align*}
+		\sigma_k &\leq       \Bigg( \sqrt{ \deltatilde A_{\min}^{-1}}  \left( \Csigma f^*_F(k)^2\delta^k k  \sum_{l=0}^{k-1}\frac{f_A(k-l)}{(k-l)!} \left(\frac{\Kb }{\delta}\right)^{k-l} \right)^{\frac{1}{2}} \\&\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad+ A_{\min}^{-1} f^*_F(k) \Kb^k   |D|^{\frac{1}{2}}   \Cpc   \Bigg)^2\nonumber\\
+		&\leq    \left(    \left( \deltatilde\Csigma f^*_F(k)^2\delta^k k\right)^\frac{1}{2} +  A_{\min}^{-1} f^*_F(k) \delta^k   |D|^{\frac{1}{2}}   \Cpc   \right)^2\\
+		&\leq  \deltatilde  \Csigma f^*_F(k)^2\delta^k k +A_{\min}^{-2} f^*_F(k)^2 \delta^{k} |D|\Cpc^2 \\
+		&\qquad\qquad\qquad\qquad\qquad\qquad+ 2 \deltatilde^{\frac{1}{2}} \Csigma^\frac{1}{2}f^*_F(k)^2   \delta^k k A_{\min}^{-1}   |D|^\frac{1}{2}\Cpc,
+	\end{align*}
+	where we remember that the last inequality follows from $\delta<1$.
+	Now, we simplify the term $\Csigma^\frac{1}{2} A_{\min}^{-1}   |D|^\frac{1}{2}\Cpc$ by bounding it by $\frac{\Csigma}{\sqrt{\Upsilon}}$, and using that $\Upsilon \geq 1$:
+	\begin{align*}
+		\sigma_k &\leq  \deltatilde  \Csigma f^*_F(k)^2\delta^k k + \frac{\Csigma f^*_F(k)^2}{\Upsilon} \delta^{k} + \frac{2\deltatilde^{\frac{1}{2}} }{\sqrt{\Upsilon}} \Csigma f^*_F(k)^2\delta^k k \\
+		&\leq  \Csigma \delta^k f^*_F(k)^2\left( \left(\deltatilde + \frac{2\deltatilde^{\frac{1}{2}} }{\sqrt{\Upsilon}} \right)k+1\right),
+	\end{align*}
+	which advances the induction due to~\eqref{eq:Nepsbound}.
+	Finally, we can conclude our proof by summing over $k$ and employing equation~\eqref{eq:sigmaineq}:
+	\begin{align*}
+		\sum_{k\geq 0} \sigma_k &\leq \Csigma  \sum_{k\geq0}(k+1) f^*_F(k)^2\delta^k \\&=\Csigma \left(g_F(\delta)+\delta g_F'(\delta) \right)\\&< \infty,
+	\end{align*}
+	which converges by the choice of $\delta$.
+\end{proof}
+
+\begin{remark}\label{rem:Kbinterval}
+A necessary condition for Theorem~\ref{thm:l2summability} is that
+\begin{equation}
+	\brhosum \leq \min\left\{ \rho_A \rho_F, \rho_A \right\}.\label{eq:nessrhosumrhoarhof}
+\end{equation}
+This condition is satisfied when, for example,
+\begin{equation*}
+	\left.1\middle/\limsup_{n\to\infty} \sqrt[n]{\Cat(n)\binom{n+3}{n}} \right.< \brhosum,
+\end{equation*}
+and
+\begin{equation*}
+	\left.1\middle/\middle(\limsup_{n\to\infty} \sqrt[n]{\Cat(n)\binom{n+3}{n}} \limsup_{n\to\infty} \sqrt[n]{\Cft(n)^2}\right) < \brhosum,
+\end{equation*}
+such that equation~\eqref{eq:rhoArhoFass} follows from the root test for convergence.
+
+In the special case where the sequences $f_A(n)$ and $f_F(n)$ are in $\mathcal{O}(n)$, and therefore $\frac{f_A(n)}{n!}$ and $\frac{f_F(n)}{n!}$ are bounded, equation~\eqref{eq:nessrhosumrhoarhof} is trivially satisfied because $\rho_A\geq 1$, $\rho_F\geq 1$ and
+\begin{equation*}
+	\brhosum<1,
+\end{equation*}
+by the assumptions of Theorem~\ref{thm:l2summability}.
+However, equation~\eqref{eq:assKbKc} still remains to be verified separately.
+\end{remark}
+
+\begin{remark}
+	In the proof of Theorem~\ref{thm:l2summability}, we made extensive use of the constant $\Kb$ as an upper bound to the supremum in equation~\eqref{eq:Kbassumption}.
+	In theory, one could put $\Kb\coloneqq\brhosum$ to simplify the assumptions.
+	However, this would make the verification of these assumptions nigh impossible, as the supremum should be evaluated exactly.
+	This construction allows for the computation of an upper bound on the supremum, simplifying the computations required.
+\end{remark}
+
+\begin{remark}\label{rem:seperation1}
+As we will see in the application to parameterized domains in Chapter~\ref{sec:modelproblem}, what matters is not much the maximal amount of variation (with respect to the parameter) in the coefficient $A$ per se, encoded in the constant $\Kb$, but rather the amount of variation relative to $A_{\min}$ and its relationship with the amount of variation in the right-hand side, encoded in the relationships~\eqref{eq:assKbKc} and~\eqref{eq:rhoArhoFass}, \rev{respectively} (although the bound $B$ in \eqref{eq:weightedsumresult} can depend on $\Kb$ and the relationship between $A$ and $F$).
+\end{remark}
+\begin{remark}
+	Theorem~\ref{thm:l2summability} introduces a balance between $\rho_A$ and $\rho_F$, where, for given $\Kt$, large $\rho_A$ allows for small $\rho_F$ and vice-versa.
+	This inverse relationship is not surprising, as it follows from the underlying PDE structure.
+\end{remark}
+
+
+
+
+
+% ======================= \ellp summability
+\subsection{Summability of Taylor coefficients}
+As a direct consequence of the weighted summability proved in Theorem~\ref{thm:l2summability}, we have the following $\ell^p$-summability result:
+\label{sec:ellpsum}
+\begin{theorem}[$\ell^p$-summability]
+	\label{thm:lpsummability}
+	Under the assumptions of Theorem~\ref{thm:l2summability}, suppose $\rho_j > 1$, $j\geq 1$, and $(\rho_j^{-1})_{j\geq 1} \, \in  \, \ell^q(\mathbb{N})$, where $q = \frac{2p}{2-p}$ for some $p < 2$.
+	Then we have $(\anorm{t_\mu})_{\mu \in \mathcal{F}} \, \in \, \ell^p(\mathcal{F})$.
+\end{theorem}
+\begin{proof}
+	The proof follows closely the one of Corollary 2.3 in~\cite{bachmayr2017a}.
+	By Theorem~\ref{thm:l2summability} and Hölder's inequality,
+	\begin{align*}
+		\sum_{\mu \in \mathcal{F}} \anorm{t_\mu}^p &\leq \left( \sum_{\mu \in \mathcal{F}} \rho^{2\mu} \anorm{t_\mu}^2 \right)^{\frac{p}{2}} \left( \sum_{\mu \in \mathcal{F}} \rho^{-\frac{2p}{2-p}\mu} \right)^{\frac{2-p}{2}}\\
+		&\leq B \left( \sum_{\mu \in \mathcal{F}} \rho^{-\frac{2p}{2-p}\nu} \right)^{\frac{2-p}{2}},
+	\end{align*}
+	with $B$ as in~\eqref{eq:weightedsumresult}.
+	Moreover,
+	\begin{equation*}
+		\sum_{\mu \in \mathcal{F}} \rho^{-\frac{2p}{2-p}\mu} = \prod_{j \geq 1}\left( \sum_{k=0}^\infty \rho_j^{-qk}  \right)= \prod_{j \geq 1}\left( 1-\rho_j^{-q} \right)^{-1},
+	\end{equation*}
+	and the last product converges precisely when $(\rho_j^{-1})_{j\geq 1} \, \in  \, \ell^q(\mathbb{N})$.
+\end{proof}
+From the $\ell^p$-summability of the Taylor coefficients of the solution, convergence rates for truncated Taylor expansions as surrogate models follow:
+\begin{corollary}[Best $N$-term approximation]\label{cor:stechkin}
+Let the assumptions of Theorem~\ref{thm:lpsummability} hold.
+Then, for the best $N$-term approximation
+\begin{align*}
+	u_N^T(\y) \coloneqq \sum_{\mu \in \Lambda_N^T} t_\mu \y^\mu,
+\end{align*}
+where $\Lambda_N^T$ is the index set corresponding to the $N$ Taylor coefficients with largest $V$-norm, \rev{there holds}
+\begin{align*}
+	\|u-u_N^T\|_{L^\infty(Y,V)} \leq C (N+1)^s,
+\end{align*}
+where
+\begin{align*}
+	s\coloneqq\frac{1}{p} - 1 = \frac{1}{q} - \frac{1}{2},
+\end{align*}
+and
+\begin{align*}
+	C\coloneqq \|(\anorm{t_\mu})_{\mu \in \mathcal{F}}\|_{\ell^p(\mathcal{F})}.
+\end{align*}
+\end{corollary}
+\begin{proof}
+	This result follows, as usual, from the application of Stechkin's lemma~\cite{devore1998,gogoladze2022}, combined with the summability properties of Theorem~\ref{thm:lpsummability}.
+\end{proof}
+
+To apply Theorem~\ref{thm:lpsummability} and Corollary~\ref{cor:stechkin}, we need the elements in the sequence $\rho_j$ to be larger than one.
+However, we can relax this assumption slightly, as outlined in the following corollary.
+
+\begin{corollary}\label{cor:looserho}
+If we replace equation~\eqref{eq:Kbassumption} in the assumptions of Theorem~\ref{thm:l2summability} by
+\begin{equation*}
+	\brhosum \leq D_1 < \infty,
+\end{equation*}
+and
+\begin{equation*}
+	\sup_{\x\in D}\sum_{j \geq 1} b_j\left(\x \right) < D_2 < 1,
+\end{equation*}
+the same results hold.
+\end{corollary}
+\begin{proof}
+	First, we let $M(S)$ be the smallest integer such that $\rho_j > S$ for all $j > M(S)$.
+	Next, we define the sequence $\tilde{\rho}_j$ by:
+	\begin{equation*}
+		\tilde{\rho}_j=\begin{cases}
+						   1+\frac{1-D_2}{2D_2},   & \text{for }j < M(S),\\
+						   \frac{\rho_j}{S},   & \text{else},
+		\end{cases}
+	\end{equation*}
+	where $S\coloneqq\frac{2D_1}{1-D_2 }$, such that $\tilde{\rho}_j> 1$ for all $j \geq 1$ to satisfy the assumptions of Theorem~\ref{thm:lpsummability}.
+
+	Now, we have that
+	\begin{align*}
+		&\sup_{\x\in D}\sum_{j \geq 1} \tilde{\rho}_j b_j\left(\x \right) \\
+		&\qquad= \sup_{\x\in D}\left( \left(1 + \frac{1-D_2}{2D_2}\right) \sum_{j = 1}^{M(S) - 1} b_j\left(\x \right)+\sum_{j = M(S) }^\infty \frac{\rho_j}{S} b_j\left(\x \right) \right)\\
+		&\qquad<  \left(1 + \frac{1-D_2}{2D_2}\right)D_2+\frac{1-D_2 }{2}\\
+		&\qquad=1.
+	\end{align*}
+	Moreover, as $\left( \rho_j^{-1} \right) \in \ell^q(\mathbb{N})$, we have that $\left( \tilde{\rho}_j^{-1} \right) \in \ell^q(\mathbb{N})$ as well.
+\end{proof}
+
+Although the construction outlined in Corollary~\ref{cor:looserho} allows for $\rho_j$ that does not satisfy equation~\eqref{eq:Kbassumption} directly, the norm of the constant $C$ in the application of Stechkin's lemma in Corollary~\ref{cor:stechkin} will increase, worsening the pre-asymptotic behavior.
+
+\begin{remark}[Comparison with \cite{bachmayr2017a}]
+	Theorem~\ref{thm:lpsummability} is a generalization of Theorem 1.2 in~\cite{bachmayr2017a} to non-affine parameter dependence (and parameter-dependent right-hand side).
+	Specifically, when taking $A(\y)= a(\y)I_d = \left(\bar{a} + \sum_{j \geq 1} y_j \psi_j\right)I_d$, $I_d$ being the $d\times d$ identity matrix, and $F$ independent of $\y$, the main result in~\cite{bachmayr2017a} is recovered by choosing $b_j=|\psi_j|$, $f_A(n)=1$ for $n=1$ and $f_A(n)=0$ otherwise, and $f_F(n)\equiv 0$.
+	The difference between the two results is that, in the present work, $g_A(x)$ in~\eqref{eq:gAdef} is more general than for the affine case, where $g_A(x)=x$.
+	For this reason,~\eqref{eq:assKbKc} gives a slightly stronger condition than the one needed in~\cite{bachmayr2017a}, referred therein as \emph{(UEA\textsuperscript{$\ast$})} assumption.
+\end{remark}
+
+\begin{remark}[Sharpness of Theorem~\ref{thm:lpsummability}]
+	Based on the previous remark, the sharpness of our summability result in Theorem~\ref{thm:lpsummability} follows from the example in~\cite[Sect. 4.2]{bachmayr2017a}.
+\end{remark}
+
+\begin{remark}[Comparison with \cite{zech2018}]
+	We note that similar results have been obtained in~\cite{zech2018} for a more general set of PDEs with a more restrictive set of assumptions.
+	The result in~\cite{zech2018} exchanges our explicitness and sharpness in the obtained bounds for generality in the applicability of their results; see~\cite[Remark~2.3.8]{zech2018}.
+\end{remark}

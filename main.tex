@@ -1,0 +1,54 @@
+%! Author = Wouter G. van Harten
+%! Date = 26/03/2025
+
+% Preamble
+\documentclass[twoside, 11pt]{book}
+\usepackage[paperheight=240mm,paperwidth=170mm,top=20mm,bottom=20mm,inner=31mm,outer=20mm]{geometry}
+
+% Packages
+\input{packages}
+
+\input{macros}
+
+
+\newif\ifnumerical
+\newif\ifall
+
+\numericaltrue
+\alltrue
+
+
+% Document
+\begin{document}
+
+    \input{titlepage}
+    \tableofcontents
+    \newpage\thispagestyle{empty}
+    \input{1-introduction}
+    \ifall
+    \input{2-shape_uncertainty_quantification}
+    \input{3-locality_in_sparse_polynomial_approximation}
+    \input{4-locality_in_shape_uq}
+    \input{5-distributed_preconditioning}
+    \input{6-distributed_preconditioning_in_shape_uq}
+    \input{7-appendices}
+    \input{8-summary}
+    \input{9-research-data-managment}
+    \fi
+
+    \cleardoublepage
+    \phantomsection
+    \addcontentsline{toc}{chapter}{Bibliography}
+    \bibliographystyle{plain}
+    \bibliography{../library}
+    \newpage\null\thispagestyle{empty}
+
+    \input{10-acknowledgements}
+    \newpage\null\thispagestyle{empty}
+
+    \input{11-about-the-cover}
+    \newpage\null\newpage\null\thispagestyle{empty}
+
+    \input{12-cv}
+
+\end{document}

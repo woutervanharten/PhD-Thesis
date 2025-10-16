@@ -1,0 +1,36 @@
+The first results on convergence rates for polynomial surrogates of the parameter-to-solution map considered the case of a finite-dimensional parameter; see, for instance,~\cite{zhou2014,babuska2004,xiu2005}.
+Convergence results for a parameter with a countable number of entries, in other words, dimension-independent rates, were first obtained in~\cite{todor2007} and improved in~\cite{cohen2010,cohen2011}.
+These works study the model problem~\eqref{eq:pde} when the right-hand side is independent of the parameter and the coefficient depends on it in an affine way, that is $A(\y)=a(\y)I_d$, where $I_d$ is the identity matrix and $a(\y)=a_0 + \sum_{j\geq 1}y_j\psi_j$, for given $a_0, \left\{\psi_j\right\}_{j\geq 1}\in L^{\infty}(D)$ such that $a$ is uniformly positive and bounded (extension to matrix-valued coefficients is straightforward).
+The aforementioned works obtain convergence rates on polynomial chaos and collocation-based surrogates from estimates of Taylor coefficients (with respect to the parameter).
+
+A significant step forward was taken in~\cite{chkifa2015}, where convergence rates for Legendre instead of Taylor coefficients were proved to hold for a much larger class of problems, namely problem~\eqref{eq:pde} with smooth but potentially highly nonlinear dependence of $A(\y)$ and $F(\y)$ on the parameter, and a broader class of PDEs. We refer to~\cite{cohen2015} and~\cite[Ch. 2-4]{adcock2022} for a review of the so-far mentioned results.
+
+All these works are based on the fact that the solution to the PDE, as a function of the parameter, admits a smooth extension on sets of the form $\mathcal{O}=\otimes_{j\geq 1}\mathcal{O}_j$.
+These sets satisfy the condition that $[-1,1]\subset\mathcal{O}_j$ and that $\mathcal{O}_j$ is an open set on the real line or in the complex plane.
+The sizes of the sets $\mathcal{O}_j$ are determined by the sensitivity of the parametric input with respect to $y_j$.
+This sensitivity is measured using Banach space norms.
+
+More concretely, consider the case where the coefficient and right-hand side in~\eqref{eq:pde} depend on a parametric input $\mathfrak{p}(\y) = \mathfrak{p}_0 + \sum_{j\geq 1}y_j\psi_j$, taking values in a Banach space $X$.
+In the affine case, we have $\mathfrak{p}(\y)=A(\y)$, but it could also be something more complex, such as the boundary of a domain, as discussed in references~\cite{castrillon-candas2016,harbrecht2016,hiptmair2018}.
+In the works mentioned above, the size of $\mathcal{O}_j$ depends then on the decay of $\lVert\psi_j\rVert_X$ as $j\rightarrow\infty$.
+In particular, they do not take into account the support of $\psi_j$, $j\geq 1$.
+The proofs presented here are based on what in~\cite{dung2022} is referred to as ``bootstrap'' arguments, that is, iterated differentiation, which, for the application to parametric domains, are in the spirit of the proofs in~\cite{harbrecht2016}, although using different estimates.
+
+Results in the same spirit, although requiring quite different proof techniques, have been obtained in the lognormal case.
+In that case, $A(\y)$ in~\eqref{eq:pde} is the exponential of a Gaussian random field, and the parameter $\y$, taking values in the whole $\mathbb{R}^{\mathbb{N}}$ with underlying Gaussian measure, corresponds to the image of the Gaussian random variables in the field expansion.
+For more details, see, for instance,~\cite{ernst2018,hoang2014}.
+
+In the last years, starting from~\cite{bachmayr2017a}, it has become clear that using \textsl{pointwise} instead of norm-wise bounds on the decay of $\psi_j$ as $j\rightarrow\infty$ can lead to a faster decay of the Taylor or Legendre coefficients of the PDE solution when the supports of $\psi_j$, $j\geq 1$, are localized.
+The main idea is that, in this case, using norms to measure the effect of each parameter coordinate on the output's variability might be too pessimistic.
+One should exploit instead that, at a specific location in the domain $D$, only a few functions contribute significantly to changes of the input $\mathfrak{p}$ (and so, in some way, to changes in the PDE solution).
+The work~\cite{bachmayr2017a} considers the model problem~\eqref{eq:pde} and an \textsl{affine} dependence of the diffusion coefficient on the parameter (and fixed right-hand side).
+Similar results have been shown in the lognormal case~\cite{bachmayr2017,dung2022}.
+For a more general class of PDEs, pointwise bounds are also considered in~\cite{zech2018}, on which we comment at the end of Section~\ref{sec:summability-of-taylor-coefficients}.
+
+Furthermore, the localized expansions, which these pointwise bounds exploit, can be beneficial in the computation of the polynomial expansions.
+For example, computational domains can be meshed adaptively, depending on the support of the basis expansion.
+An example in the case of stochastic Galerkin has been explored in~\cite{bachmayr2025} for the linear and lognormal coefficients in the diffusion problem~\eqref{eq:parameterized_poisson_pde}.
+
+The results in this chapter build upon~\cite{bachmayr2017,bachmayr2017a}.
+The main contribution is to extend the results in~\cite{bachmayr2017a}, which are for the affine case, to the case that the coefficient and right-hand side in~\eqref{eq:pde} depend \textsl{nonlinearly}, but smoothly, on the parameter.
+The next chapter will show how this can be applied to treat elliptic problems on parametric domains.

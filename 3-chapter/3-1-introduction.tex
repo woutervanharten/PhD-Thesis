@@ -1,0 +1,27 @@
+In this chapter, we focus on the heterogeneous parameterized Poisson equation~\eqref{eq:parameterized_poisson_pde}, which we repeat here for the reader's convenience:
+\begin{equation}
+    \begin{cases}
+        -\nabla\cdot\left(A(\y)\nabla u(\y) \right) = F(\y), & \text{in } D,\\
+        u(\y) = 0, & \text{on } \partial D,\\
+        \text{for every }\bm{y} \in Y \coloneqq [-1, 1]^\mathbb{N}.
+    \end{cases} \label{eq:pde}
+\end{equation}
+The parameter dependence of the input, entering~\eqref{eq:pde} via the PDE coefficient and right-hand side, propagates to the solution $u$, with $u(\y)\in H_0^1(D)$ for every $\y\in Y$, and to possible output functionals depending on it.
+We are interested in constructing an efficient surrogate, or an approximant, for the parameter-to-solution map $\y \mapsto u(\y)$.
+This surrogate is useful for both forward and inverse UQ.
+Moreover, uses are not restricted to UQ as surrogates can be helpful in, for example, optimization and inference.
+We focus on sparse \textsl{polynomial} surrogates, and later in Chapter~\ref{ch:locality-in-parameterized-domains}, we highlight potential implications for approximation properties of other surrogates and quadrature.
+
+This chapter establishes a general framework for Chapter~\ref{ch:locality-in-parameterized-domains}, where we address the application to elliptic PDEs on \textsl{parameter-dependent domains} with fixed coefficients and right-hand side.
+As we have seen in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}, the latter can be recast in the setting~\eqref{eq:pde}.
+Motivated by the application to parametric domains, among many others, we are particularly interested in the case that $A$ and $F$ in~\eqref{eq:pde} depend smoothly but possibly in a highly nonlinear way on the parameter $\y$ in the present chapter.
+
+We will start with a literature review in Section~\ref{sec:state-of-the-art}.
+This is followed by introducing Taylor approximations to the parameter-to-solution map for problem~\eqref{eq:pde} in Section~\ref{sec:summability-of-taylor-coefficients}.
+In the remainder of the latter, we prove the $\ell^p$-summability of the Taylor coefficients via a weighted $\ell^2$-summability argument.
+
+Throughout the chapter, we use the following conventions.
+We denote the spectral norm of a $n$-tensor by $\left|\,\cdot\,\right|_{n,2}$, and, for the special case $n=1$, we use the short notation $\left|\,\cdot\,\right|$ as used in the previous chapters.
+For parameter- and space-dependent quantities, when using the aforementioned norms in proofs, we will omit explicit dependence on the space coordinate to lighten the notation.
+For instance, for the diffusion coefficient in~\eqref{eq:pde}, $\left|A(\y)\right|_{2,2}$ will denote the spectral norm of the matrix $A(\y,\x)$, for given $\y\in Y$ and $\x\in D$.
+For the norm on an infinite-dimensional Banach space $X$, instead, we use $\lVert\,\cdot\,\rVert_X$.

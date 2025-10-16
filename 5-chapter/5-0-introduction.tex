@@ -1,0 +1,9 @@
+In this chapter, we address the efficient iterative solution of parameterized systems of linear equations with possible nonlinear parameter dependence.
+When the matrix is highly sensitive to the parameters, so-called mean-based preconditioning may not be sufficient.
+For this scenario, we explore an approach in which several preconditioners are placed in the parameter space during a pre-computation step.
+To determine the optimal placement of a limited number of preconditioners, we estimate the expected number of iterations with respect to a given preconditioner a priori and then use a location-allocation strategy to optimize the placement of the preconditioners.
+We will make our methods explicit by considering the \emph{Generalized Minimal Residual Method} (GMRES) as the iterative solver and make use of its convergence bounds.
+This chapter establishes a general framework for Chapter~\ref{ch:distributed-preconditioning-for-the-parameterized-scatterer}, where we address the application of this methodology to the Helmholtz problem with exterior Dirichlet scattering at high frequencies.
+
+We start with a literature review in Section~\ref{sec:precond-introduction}, followed by a more rigorous problem statement in Section~\ref{sec:problem-statement}.
+After having introduced the problem, Section~\ref{sec:preconditioner-placement} explains the placement process, and Section~\ref{sec:estimating-m-for-gmres} discusses methods to get a surrogate for the number of required Krylov iterations using known convergence bounds for GMRES\@.

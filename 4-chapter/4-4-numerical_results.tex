@@ -1,0 +1,401 @@
+To illustrate the theoretical results obtained in Section~\ref{sec:modelproblem}, we compute the Taylor coefficients of the solution to the parameterized shape problem~\eqref{eq:variational_formulation_y_poission} and estimate their decay.
+In equation~\eqref{eq:variational_formulation_y_poission}, we use $a(\bm{x}) = f(\bm{x}) \equiv 1$, and we take the circle with $r_0\equiv 1$ as the star-shaped reference domain.
+For the basis expansion, we consider both the Fourier~\eqref{eq:fourierdef} and wavelet~\eqref{eq:waveletdef} bases.
+
+
+We have implemented the alternating greedy Taylor algorithm introduced in~\cite{cohen2015} to calculate the Taylor coefficients.
+The algorithm iteratively builds up a downward closed index set $\Lambda$ by determining its reduced set of neighbors $\mathcal{N}(\Lambda) \subset \mathcal{F}$~\cite{cohen2015}:
+\begin{align*}
+	\mathcal{N}(\Lambda)\coloneqq \Big\{   \nu \notin \Lambda \text{ such that } \Lambda \cup \{\nu\} \text{ is downward closed and }\\ \max(\supp(\nu)) \leq \max_{\mu \in \Lambda}\left\{\max(\supp(\mu))\right\} +1 \Big\},
+\end{align*}
+where $\supp(\mu)$ denotes the support of the multi index $\mu$.
+The algorithm alternatingly adds the largest Taylor coefficient and the Taylor coefficient that has been in the reduced set of neighbors for the largest number of iterations.
+This way, the algorithm would add all Taylor coefficients to $\Lambda$ if we did not limit the number of iterations~\cite{cohen2015}.
+We continue each test until we have added 1000 coefficients to $\Lambda$.
+To estimate the decay rate, we follow~\cite{bachmayr2017a} and introduce the decreasing rearrangement $(t^*_n)_{n\geq 1}$ of $(\|t_\mu\|_{V})_{\mu \in \mathcal{F}}$.
+Then, $(\|t_\mu\|_{V})_{\mu \in \mathcal{F}} \in \ell^p(\mathcal{F})$ implies that, for some $C>0$, we have $t^*_n \leq Cn^{-\frac{1}{p}}$, and, if $t^*_n \leq Cn^{-\frac{1}{q}}$ for some $C,q > 0$, we have that $(\|t_\mu\|_{V})_{\mu \in \mathcal{F}} \in \ell^p(\mathcal{F})$ for any $p > q$.
+Hence, we can estimate the limiting decay rate of $(\|t_\mu\|_{V})_{\mu \in \mathcal{F}}$ from the largest $s$ such that $\sup_{n \geq 1} n^s t^*_n$ is finite.
+To estimate this largest $s$, we perform a linear least squares regression on an exponentially distributed sample of $n$  to find the decay rate in a log-log scale.
+By sampling exponentially from the decreasing rearrangement $(t^*_n)_{n \geq 1}$, we mitigate the staircasing effect introduced by the wavelet expansion.
+We skip the largest coefficients in the pre-asymptotic behavior to ensure we do not include the pre-asymptotic phase.
+Due to the alternating nature of the alternating greedy algorithm, we exclude the smallest half of the coefficients because these coefficients may be included due to the alternating steps, including the oldest coefficients instead of the largest ones.
+
+The alternating greedy algorithm has been implemented in Python~3.8.
+To compute the Taylor coefficients, we have used the finite element library Dolfinx~\cite{alnaes2014a,baratta2023,scroggs2022,scroggs2022a}, employing the linear system solver PETSc~\cite{brown2022,dalcin2011}.
+We have used the domain meshing library Gmsh~\cite{geuzaine2009} to generate the triangular, unstructured reference mesh \rev{in which we resolve the (computational) interface at the kink of the mollifier when using equation \eqref{eq:interior_mollifier}.}
+To evaluate the wavelets and scaling functions efficiently, we have used the PyWavelet library~\cite{lee2019}.
+Since our theoretical results do not take the finite element error in the computation of the Taylor coefficients into account, we have, apart from Subsection~\ref{subsec:convstudy}, chosen the mesh to be fine enough so that its effect on the decay of the Taylor coefficients is negligible.
+To take the radial dependence of the mollifier mapping~\eqref{eq:mollifiertransf} into consideration, we have computed the Taylor coefficients using a mesh with a mesh size decreasing linearly with the distance from the origin.
+When using the harmonic mapping instead, we have used a mesh with a mesh size proportional to the inverse of the distance to the boundary.
+Both meshes have been scaled to have identical spatial discretization at their boundaries.
+
+However, we note that, although we have demonstrated a possible convergence rate in the previous sections and observed a good approximation of the expected decay in practice, we cannot prove theoretically that the alternating greedy algorithm~\cite{cohen2015} attains this maximal convergence rate.
+
+When calculating the required Taylor coefficients, we need to evaluate the derivative $\partial^\mu A(\bm{0})$ at each step.
+Due to the multiplicative structure of $A(\y)$ as seen in the computations in the proof of Lemma~\ref{thm:Afbound}, the computational size of $\partial^\mu A(\bm{0})$  scales super-exponentially with the order $\mu$, and, for memory reasons, we had to truncate $\mathcal{F}$ and discard any multi-index $\mu$ with $|\mu| > 7$.
+For all computations with maximal shape variation $\vartheta < 32\%$, this does not impact the downwards closed index set $\Lambda$, as the corresponding Taylor coefficients do not enter $\Lambda$.
+The number of skipped coefficients is minimal for $\vartheta \geq 32\%$.
+Therefore, this does not impact the obtained convergence rates significantly.
+
+In the remainder of this section, we present the numerical verification of our analytical results obtained in Subsection~\ref{sec:exploiting-locality-in-parameterized-domains}.
+In Subsection~\ref{subsec:vartheta5percent}, we present the numerical rates for fixed maximal shape variations of $\vartheta = 5\%$, in Subsection~\ref{sec:shapevar} we discuss the effect of the maximal shape variations $\vartheta$ on the rates, and finally, in Subsection~\ref{subsec:convstudy}, we show the relation between the spatial discretization and the observed rates.
+
+
+\ifnumerical
+\begin{figure}
+	\centering
+	\begin{subfigure}[c]{0.5\textwidth}
+		\begin{tikzpicture}[scale=0.75]
+			\begin{axis}[
+			legend style={at={(0.02,0.02)},anchor=south west, nodes={scale=0.8, transform shape}},
+			height =12cm,
+			width = 1.25\linewidth,
+			xlabel = {$n$},
+			ylabel = {\ylab},
+			grid=both,
+			major grid style={black!50},
+			xmode=log, ymode=log,
+			xmin=1e0, xmax=5e2,
+			ymin=1e-11, ymax=1e-0,
+			%   xmin=1e2, xmax=5e2,
+			%   ymin=1e-11, ymax=1e-9,
+			yticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0
+			},
+			scaled y ticks=false,
+			xticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0
+			},
+			scaled y ticks=false,
+			legend columns=2
+			title={$\alpha = 3$},
+			title style={
+				font=\LARGE
+			},
+			]
+
+
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_2_h1_theta005_mollifier_deg2_sourceconst_final}{color_llrr}{M--F\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_2_h1_theta005_mollifier_deg2_sourceconst_final}{color_llrrg}{M--W\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_2_h1_theta005_harmonic_deg2_sourceconst_final}{color_llgg}{H--F\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_2_h1_theta005_harmonic_deg2_sourceconst_final}{color_llbb}{H--W\hspace*{0.1cm}}
+
+			\end{axis}
+		\end{tikzpicture}
+		\caption{$\alpha=2$.}
+	\end{subfigure}
+	~
+	\begin{subfigure}[c]{0.47\textwidth}
+		\begin{tikzpicture}[scale=0.75]
+			\begin{axis}[
+			legend style={at={(0.02,0.02)},anchor=south west, nodes={scale=0.8, transform shape}},
+			height =12cm,
+			width = 1.3\linewidth,
+			xlabel = {$n$},
+%            ylabel = {\ylab},
+			grid=both,
+			major grid style={black!50},
+			xmode=log, ymode=log,
+			xmin=1e0, xmax=5e2,
+			ymin=1e-11, ymax=1e-0,
+			yticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0,
+				text opacity=0
+			},
+			scaled y ticks=false,
+			xticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0
+			},
+			scaled y ticks=false,
+			legend columns=2
+			% title={Fourier and Wavelet},
+			% title style={font=\LARGE},
+			]
+
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_25_h1_theta005_mollifier_deg2_sourceconst_final}{color_rr}{M--F\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_25_h1_theta005_mollifier_deg2_sourceconst_final}{color_rrg}{M--W\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_25_h1_theta005_harmonic_deg2_sourceconst_final}{color_gg}{H--F\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_25_h1_theta005_harmonic_deg2_sourceconst_final}{color_bb}{H--W\hspace*{0.1cm}}
+
+			\end{axis}
+		\end{tikzpicture}
+		\caption{$\alpha=2.5$.}
+	\end{subfigure}\\
+	\begin{subfigure}[l]{0.5\textwidth}
+		\begin{tikzpicture}[scale=0.75]
+			\begin{axis}[
+			legend style={at={(0.02,0.02)},anchor=south west, nodes={scale=0.8, transform shape}},
+			height =11cm,
+			width = 1.25\linewidth,
+			xlabel = {$n$},
+			ylabel = {\ylab},
+			grid=both,
+			major grid style={black!50},
+			xmode=log, ymode=log,
+			xmin=1e0, xmax=5e2,
+			ymin=1e-11, ymax=1e-0,
+			yticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0,
+%              text opacity=0
+			},
+			scaled y ticks=false,
+			xticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0
+			},
+			scaled y ticks=false,
+			legend columns=2
+			% title={Fourier and Wavelet},
+			% title style={font=\LARGE},
+			]
+
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_3_h1_theta005_mollifier_deg2_sourceconst_final}{color_ddrr}{M--F\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_3_h1_theta005_mollifier_deg2_sourceconst_final}{color_ddrrg}{M--W\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_3_h1_theta005_harmonic_deg2_sourceconst_final}{color_ddgg}{H--F\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_3_h1_theta005_harmonic_deg2_sourceconst_final}{color_ddbb}{H--W\hspace*{0.1cm}}
+
+			\end{axis}
+		\end{tikzpicture}
+		\caption{$\alpha=3$.}
+	\end{subfigure}
+	\begin{minipage}[r]{0.1\textwidth}
+		\,
+	\end{minipage}
+	\begin{minipage}[r]{0.38\textwidth}
+		\caption{Decay of the $H_0^1$-norm of the Taylor coefficients of the PDE solution for the Fourier expansion with mollifier mapping (M--F), Wavelet expansion with mollifier mapping (M--W), Fourier expansion with harmonic mapping (H--F), and Wavelet expansion with harmonic mapping (H--W), for $\alpha = 2$ (a), $\alpha=2.5$ (b), and $\alpha=3$ (c), and with $\vartheta=5\%$ maximal shape variations. We denote by $n$ the index in the decreasing rearrangement $(t^*_n)_{n \geq 1}$.\reprintpermissionfootnote}
+		\label{fig:threeresults}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{subfigure}[t]{0.5\textwidth}
+		\begin{tikzpicture}[scale=0.75]
+			\begin{axis}[
+			legend style={at={(0.02,0.02)},anchor=south west, nodes={scale=0.8, transform shape}},
+			height =11cm,
+			width = 1.25\linewidth,
+			xlabel = {$n$},
+			ylabel = {\ylab},
+			grid=both,
+			major grid style={black!50},
+			xmode=log, ymode=log,
+			xmin=1e0, xmax=5e2,
+			ymin=1e-9, ymax=1e-0,
+			yticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0,
+				%       text opacity=0
+			},
+			scaled y ticks=false,
+			xticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0
+			},
+			scaled y ticks=false,
+			legend columns=2
+			% title={Fourier and Wavelet},
+			% title style={font=\LARGE},
+			]
+
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_2_h1_theta005_mollifier_deg2_sourceconst_final}{color_llrr}{$\alpha=2$\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_25_h1_theta005_mollifier_deg2_sourceconst_final}{color_rr}{$\alpha=2.5$\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_3_h1_theta005_mollifier_deg2_sourceconst_final}{color_ddrr}{$\alpha=3$\hspace*{0.1cm}}
+
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Mollifier mapping with Fourier expansion.}
+	\end{subfigure}
+	~
+	\begin{subfigure}[t]{0.47\textwidth}
+		\begin{tikzpicture}[scale=0.75]
+			\begin{axis}[
+			legend style={at={(0.02,0.02)},anchor=south west, nodes={scale=0.8, transform shape}},
+			height =11cm,
+			width = 1.3\linewidth,
+			xlabel = {$n$},
+			%  ylabel = {\ylab},
+			grid=both,
+			major grid style={black!50},
+			xmode=log, ymode=log,
+			xmin=1e0, xmax=5e2,
+			ymin=1e-9, ymax=1e-0,
+			yticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0,
+				text opacity=0
+			},
+			scaled y ticks=false,
+			xticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0
+			},
+			scaled y ticks=false,
+			legend columns=2
+			% title={Fourier and Wavelet},
+			% title style={font=\LARGE},
+			]
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_2_h1_theta005_mollifier_deg2_sourceconst_final}{color_llrrg}{$\alpha=2$\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_25_h1_theta005_mollifier_deg2_sourceconst_final}{color_rrg}{$\alpha=2.5$\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_3_h1_theta005_mollifier_deg2_sourceconst_final}{color_ddrrg}{$\alpha=3$\hspace*{0.1cm}}
+
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Mollifier mapping with wavelet expansion.}
+	\end{subfigure}\\
+	\begin{subfigure}[t]{0.5\textwidth}
+		\begin{tikzpicture}[scale=0.75]
+			\begin{axis}[
+			legend style={at={(0.02,0.02)},anchor=south west, nodes={scale=0.8, transform shape}},
+			height =11cm,
+			width = 1.25\linewidth,
+			xlabel = {$n$},
+			ylabel = {\ylab},
+			grid=both,
+			major grid style={black!50},
+			xmode=log, ymode=log,
+			xmin=1e0, xmax=5e2,
+			ymin=1e-9, ymax=1e-0,
+			yticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0,
+				%       text opacity=0
+			},
+			scaled y ticks=false,
+			xticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0
+			},
+			scaled y ticks=false,
+			legend columns=2
+			% title={Fourier and Wavelet},
+			% title style={font=\LARGE},
+			]
+
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_2_h1_theta005_harmonic_deg2_sourceconst_final}{color_llgg}{$\alpha=2$\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_25_h1_theta005_harmonic_deg2_sourceconst_final}{color_gg}{$\alpha=2.5$\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_fourier_alpha_3_h1_theta005_harmonic_deg2_sourceconst_final}{color_ddgg}{$\alpha=3$\hspace*{0.1cm}}
+
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Harmonic mapping with Fourier expansion.}
+	\end{subfigure}
+	~
+	\begin{subfigure}[t]{0.47\textwidth}
+		\begin{tikzpicture}[scale=0.75]
+			\begin{axis}[
+			legend style={at={(0.02,0.02)},anchor=south west, nodes={scale=0.8, transform shape}},
+			height =11cm,
+			width = 1.3\linewidth,
+			xlabel = {$n$},
+			%  ylabel = {\ylab},
+			grid=both,
+			major grid style={black!50},
+			xmode=log, ymode=log,
+			xmin=1e0, xmax=5e2,
+			ymin=1e-11, ymax=1e-0,
+			yticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0,
+				text opacity=0
+			},
+			scaled y ticks=false,
+			xticklabel style={
+				/pgf/number format/fixed,
+				/pgf/number format/precision=0
+			},
+			scaled y ticks=false,
+			legend columns=2
+			% title={Fourier and Wavelet},
+			% title style={font=\LARGE},
+			]
+
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_2_h1_theta005_harmonic_deg2_sourceconst_final}{color_llbb}{$\alpha=2$\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_25_h1_theta005_harmonic_deg2_sourceconst_final}{color_bb}{$\alpha=2.5$\hspace*{0.1cm}}
+			\plotfit{4-chapter/results/Alternating_greedy_daubechies4_alpha_3_h1_theta005_harmonic_deg2_sourceconst_final}{color_ddbb}{$\alpha=3$\hspace*{0.1cm}}
+
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Harmonic mapping with wavelet expansion.}
+	\end{subfigure}
+	\caption{The effect of the mapping and expansion on the observed decay for $\vartheta=5\%$. Here $n$ is the index of the decreasing rearrangement $(t^*_n)_{n \geq 1}$.\reprintpermissionfootnote}
+	\label{fig:squareresults}
+\end{figure}
+\fi
+
+\subsection{Illustrations of the theoretical rates for fixed maximal shape variations}
+\label{subsec:vartheta5percent}
+
+We verify the convergence rates obtained in Section~\ref{sec:modelproblem} by computing the Taylor coefficients when using maximal shape variations $\vartheta=5\%$.
+We do this for both the mollifier-based and the harmonic mapping, where, in the first case, we use linear mollifier~\eqref{eq:interior_mollifier}.
+In Figure~\ref{fig:threeresults}, we show the convergence graphs for different values of the decay rate $\alpha$, for $\alpha\in \{2, 2.5, 3\}$.
+Previous results for Fourier and our results for wavelets predict convergence rates of 1, 1.5, and 2 for the Fourier expansion and 1.5, 2, and 2.5 for the wavelet expansion, respectively.
+
+For the mollifier mapping, we recover the expected and predicted convergence rates for $\alpha\in\{2, 2.5\}$.
+For $\alpha=3$, we obtain convergence rates just short of the expected ones, analogously to~\cite{bachmayr2017a}.
+Although we do not obtain the full rates for all values of $\alpha$, we observe an improvement in the convergence rate of $\frac{1}{2}$ between the Fourier and wavelet expansions under the mollifier mapping, as expected by the theory.
+
+Next to the results for the mollifier mapping, the decay in the norm of the Taylor coefficients obtained with the harmonic mapping is also shown in Figure~\ref{fig:threeresults}.
+We observe that, in the case of the Fourier expansion, the decay rates are very similar for both mappings, where the harmonic mapping introduces a significantly smaller constant than the mollifier mapping.
+This difference can be attributed to the difference in the $W^{1,\infty}$-norm between the mollifier and harmonic mappings.
+
+In contrast to the Fourier expansion, we observe different decay rates for the two domain mappings when considering the wavelet expansion for the radius.
+While the wavelet expansion with the mollifier mapping approaches the expected convergence rate, the harmonic mapping consistently results in convergence rates exceeding the expected ones by approximately $0.3$.
+This difference could be explained by the different locality behavior of the two mappings.
+Since the mollifier mappings are radially supported in correspondence to the support of the wavelets, the support in the radial direction of the mollifier mapping is equal to the support of the mollifier $\chi$.
+This is different for the harmonic mapping, where not only does the support in the angular direction shrink as the support of the wavelet shrinks, but the support along the radial direction shrinks as well.
+Therefore, harmonic mappings have more localized supports than mollifier mappings.
+
+To investigate the effect of the decay parameter $\alpha$, we present the same results as in Figure~\ref{fig:threeresults}, categorized by mapping and expansion, in Figure~\ref{fig:squareresults}.
+From this, we can see a clear difference between the mollifier and harmonic mappings.
+While the first two graphs corresponding to the mollifier mapping show almost no pre-asymptotic behavior, the equivalent graphs for the harmonic mapping show a pre-asymptotic behavior in the 50 largest coefficients.
+
+\subsection{Effect of maximal shape variations on the observed rates}
+\label{sec:shapevar}
+To investigate the effect of the maximal shape variations on the obtained convergence rates, we let the maximal shape variations be $\vartheta \in \{4\%, 8\%, 16\%, 32\% \}$.
+We calculate the decay rate of the Taylor coefficients for each value of $\vartheta$ for both the linear mollifier and the harmonic mapping with the wavelet basis expansion.
+Table~\ref{tab:shapevar} shows the results for different spatial resolutions, and in this subsection, we focus on the column for $h=1$.
+
+Here, we observe that the difference between the decay rates for the mollifier and harmonic mapping persists for different values of $\vartheta$, and for both, the decay rates degrade for larger values of $\vartheta$.
+These observations are consistent with those in~\cite{bachmayr2017a} for the affine case.
+Moreover, the column for $h=1$ in Table~\ref{tab:shapevar} shows us that, for small values of $\vartheta$, the decay rate when using the harmonic mapping approaches $3$, which is a significant improvement over the theoretical convergence rate of $2.5$.
+
+Additionally, by inspecting the structure of the active index set $\Lambda$ for different values of $\vartheta$, the computational tests reveal that for small values of $\vartheta$, the active index set consists mainly of Taylor coefficients of small order ($|\mu|\leq 2$).
+On the other hand, for large values of $\vartheta$, the alternating greedy Taylor algorithm prioritizes the exploration of higher-order coefficients.
+
+\begin{table}
+	\centering
+	\begin{tabular}{l|cc|cc|cc|c}
+		& \multicolumn{2}{c|}{$h=4$}             & \multicolumn{2}{c|}{$h=2$}   & \multicolumn{2}{c|}{$h=1$}                  & $h=1/2$        \\ \hline
+		$\vartheta$  & \multicolumn{1}{c|}{M}     & H       & \multicolumn{1}{c|}{M}           & H       & \multicolumn{1}{c|}{M}     &H       & H                  \\ \hline
+		$4\%$        & \multicolumn{1}{l|}{2.512}  & 2.376    & \multicolumn{1}{l|}{2.457}     & 2.629    & \multicolumn{1}{l|}{2.409}  & 2.867   & 2.944               \\
+		$8\%$        & \multicolumn{1}{l|}{2.341}  & 2.496    & \multicolumn{1}{l|}{2.320}     & 2.729    & \multicolumn{1}{l|}{2.408}  & 2.858   & 2.877                   \\
+		$16\%$       & \multicolumn{1}{l|}{2.431}  & 2.491    & \multicolumn{1}{l|}{2.421}     & 2.629    & \multicolumn{1}{l|}{2.376}  & 2.700   & 2.720               \\
+		$32\%$       & \multicolumn{1}{l|}{2.200}  & 2.369    & \multicolumn{1}{l|}{2.194}     & 2.489    & \multicolumn{1}{l|}{2.193}  & 2.507   & 2.507
+	\end{tabular}
+
+	\caption{Decay of the $H_0^1$-norm of the Taylor coefficients of the PDE solution for the wavelet expansion with the mollifier (M) and harmonic (H) mapping, for different values of the maximal shape variation $\vartheta$ and fixed $\alpha=3$. Mesh sizes $h$ are relative to the mesh size required to adequately resolve the wavelets in Figure \ref{fig:threeresults} and~\ref{fig:squareresults}.\reprintpermissionfootnote}
+	\label{tab:shapevar}
+\end{table}
+
+
+\subsection{Effect of the space discretization on the observed rates}
+\label{subsec:convstudy}
+Next to the effect of the maximal shape variations $\vartheta$, the different columns in Table~\ref{tab:shapevar} show the dependence of the rates on the spatial discretizations as well.
+In our experiments, $h=1$ is equivalent to the mesh refinement needed to resolve the wavelets in the $10^{\text{th}}$ layer on the boundary.
+These wavelets are the smallest ones that enter the active set $\Lambda$ for the first 1000 iterations of the alternating greedy Taylor algorithm.
+Due to this choice, we do not expect any significant improvement for $h < 1$, which is confirmed by the numerical results in Table~\ref{tab:shapevar}.
+We have not performed the corresponding computations for the mollifier mapping.
+The mesh would be prohibitively large because the mesh size scale decreases linearly with the distance to the origin on the mollifier's support.
+This results in a factor of 16 difference between the number of vertices in the mollifier and harmonic mesh.
+
+Finally, we observe that the decay rates of the harmonic mapping decrease as $h$ increases.
+This degradation is clearly noticeable for both small and large values of $\vartheta$, but the effect is of different magnitude: smaller values of $\vartheta$ imply larger degradation, and vice-versa.
+Contrary to the harmonic mapping, the decay rates for the mollifier mapping degrade, but by a smaller amount.
+This could also be due to the strong damping of the harmonic mapping inside the domain.
+Moreover, the degradation is not monotonic; if there is degradation, the decay rates become larger for some and smaller for other values of $\vartheta$.

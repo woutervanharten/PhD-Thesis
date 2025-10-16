@@ -1,0 +1,10 @@
+After we have developed the preconditioning strategy in the previous chapter, we will apply it to high-frequency Helmholtz scattering
+with heterogeneous coefficients.
+The Helmholtz equation is known to be particularly ill-conditioned at high frequencies, making it a great benchmark for evaluating preconditioning strategies~\cite{chandler-wilde2012,graham2021}.
+We will consider coefficients that have $C^1$-parameter dependence, which we address in Section~\ref{sec:application-to-the-helmholtz-equation}.
+
+For the heterogeneous Helmholtz equation,~\cite{graham2021} derived fre\-quen\-cy{-}ex\-pli\-cit upper bounds on the number of GMRES iterations for a given tolerance.
+We exploit this a-priori knowledge to build a good prior mean and kernel for our surrogate, the gray box Gaussian process regression model introduced in Chapter~\ref{ch:distributed-preconditioning}.
+To illustrate and test the method numerically, we study two applications: an affine parameter dependence in the refractive index and the parameterized domain setting introduced in Chapter~\ref{ch:uncertainty-quantification-for-paramterized-domains}, going well beyond the affine case.
+Section~\ref{sec:numerical-results-precond} presents these numerical studies, analyzing isotropic and anisotropic parameter dependencies.
+We end with a summary and concluding remarks in Section~\ref{sec:discussion-and-extensions}.
